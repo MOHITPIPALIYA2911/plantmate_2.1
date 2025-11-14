@@ -64,28 +64,28 @@ export default function Registration() {
                 <div>
                   <label className="text-sm font-medium text-gray-700">First name</label>
                   <input name="firstName" value={form.firstName} onChange={onChange}
-                         className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100"/>
+                         className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">Last name</label>
                   <input name="lastName" value={form.lastName} onChange={onChange}
-                         className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100"/>
+                         className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
                 </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Email</label>
                 <input name="emailId" value={form.emailId} onChange={onChange} placeholder="you@email.com"
-                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100"/>
+                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Password</label>
                 <input type="password" name="password" value={form.password} onChange={onChange}
-                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100"/>
+                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Confirm Password</label>
                 <input type="password" name="confirm" value={form.confirm} onChange={onChange}
-                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100"/>
+                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
               </div>
               <button type="submit" disabled={submitting}
                       className="w-full flex justify-center bg-green-500 hover:bg-green-600 text-white p-3 rounded-full font-semibold shadow-lg transition duration-300 disabled:opacity-60">

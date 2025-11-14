@@ -1,4 +1,4 @@
-# PlantMate - Backend & Frontend Connection Guide
+for # PlantMate - Backend & Frontend Connection Guide
 
 ## ✅ All Backend Endpoints Connected
 

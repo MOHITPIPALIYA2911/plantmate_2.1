@@ -89,14 +89,14 @@ const Navbar = ({ onToggleSidebar }) => {
       <div className="flex items-center gap-3" ref={menuRef}>
         <button
           type="button"
-          className="relative p-2 rounded-xl text-white/90 hover:bg-emerald-500 dark:hover:bg-slate-800"
-          title="Notifications"
-          onClick={() => navigate("/notifications")}
+          className="relative p-2 rounded-xl text-white/50 opacity-50 cursor-not-allowed"
+          title="Notifications (Disabled)"
+          disabled
         >
           <FaBell />
           <span className="absolute -top-1 -right-1 h-5 min-w-[1.1rem] rounded-full
             bg-white text-emerald-700 dark:bg-emerald-500 dark:text-white
-            text-xs px-1 flex items-center justify-center">
+            text-xs px-1 flex items-center justify-center opacity-50">
             2
           </span>
         </button>

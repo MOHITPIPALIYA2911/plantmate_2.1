@@ -189,29 +189,29 @@ export default function Settings() {
         />
       </Section>
 
-      <Section title="Profile & Locale" icon={<FaGlobe className="text-white/90" />}>
+      <Section title="Profile & Locale" icon={<FaGlobe className="text-white/90" />} disabled>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Select label="Timezone" value={settings.timezone} onChange={(v) => set("timezone", v)} options={TIMEZONES} />
+          <Select label="Timezone" value={settings.timezone} onChange={(v) => set("timezone", v)} options={TIMEZONES} disabled />
           <Select label="Units" value={settings.preferred_units} onChange={(v) => set("preferred_units", v)}
-            options={[{ value: "metric", label: "Metric (°C, liters)" }, { value: "imperial", label: "Imperial (°F, gallons)" }]} />
+            options={[{ value: "metric", label: "Metric (°C, liters)" }, { value: "imperial", label: "Imperial (°F, gallons)" }]} disabled />
           <Select label="First day of week" value={settings.first_day_of_week} onChange={(v) => set("first_day_of_week", v)}
-            options={[{ value: "sun", label: "Sunday" }, { value: "mon", label: "Monday" }]} />
+            options={[{ value: "sun", label: "Sunday" }, { value: "mon", label: "Monday" }]} disabled />
         </div>
       </Section>
 
-      <Section title="Notifications" icon={<FaBell className="text-white/90" />}>
+      <Section title="Notifications" icon={<FaBell className="text-white/90" />} disabled>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Toggle label="Enable in-app notifications" checked={!!settings.notif.in_app} onChange={(v) => set("notif.in_app", v)} />
-          <Number label="Default snooze (minutes)" value={settings.notif.default_snooze_min} onChange={(v) => set("notif.default_snooze_min", v)} min="5" step="5" />
+          <Toggle label="Enable in-app notifications" checked={!!settings.notif.in_app} onChange={(v) => set("notif.in_app", v)} disabled />
+          <Number label="Default snooze (minutes)" value={settings.notif.default_snooze_min} onChange={(v) => set("notif.default_snooze_min", v)} min="5" step="5" disabled />
           <div className="flex items-end">
-            <button onClick={() => notify("info", "Test notification 🔔")} className="w-full px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">
+            <button onClick={() => notify("info", "Test notification 🔔")} className="w-full px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 opacity-50 cursor-not-allowed" disabled>
               Send test
             </button>
           </div>
         </div>
       </Section>
 
-      <Section title="Care Defaults" icon={<FaClock className="text-white/90" />}>
+      <Section title="Care Defaults" icon={<FaClock className="text-white/90" />} disabled>
         <RadioGroup
           label="Overdue snooze policy"
           value={settings.care_defaults.overdue_snooze_policy}
@@ -220,16 +220,17 @@ export default function Settings() {
             { value: "from_now", label: "Always +snooze from now" },
             { value: "keep_today", label: "Keep within today (max 23:59)" },
           ]}
+          disabled
         />
       </Section>
     </div>
   );
 }
 
-function Section({ title, icon, children }) {
+function Section({ title, icon, children, disabled }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-sm overflow-hidden">
-      <div className="px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-medium flex items-center gap-2">
+    <div className={`bg-white dark:bg-slate-800 rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-sm overflow-hidden ${disabled ? 'opacity-60' : ''}`}>
+      <div className={`px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-medium flex items-center gap-2 ${disabled ? 'opacity-75' : ''}`}>
         {icon ? icon : null} {title}
       </div>
       <div className="p-4">{children}</div>
@@ -248,39 +249,39 @@ function ReadOnly({ label, value }) {
   );
 }
 
-function Select({ label, value, onChange, options }) {
+function Select({ label, value, onChange, options, disabled }) {
   const opts = Array.isArray(options) ? options : Object.entries(options).map(([v,l]) => ({ value: v, label: l }));
   return (
     <div>
       <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">{label}</label>
-      <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2">
+      <select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}
+        className={`w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
         {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
   );
 }
 
-function Toggle({ label, checked, onChange }) {
+function Toggle({ label, checked, onChange, disabled }) {
   return (
     <div>
       <label className="block text-sm text-gray-700 dark:text-gray-200 mb-2">{label}</label>
-      <label className="inline-flex items-center gap-3">
-        <input type="checkbox" checked={!!checked} onChange={(e) => onChange(e.target.checked)} className="h-5 w-5 accent-emerald-600" />
+      <label className={`inline-flex items-center gap-3 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+        <input type="checkbox" checked={!!checked} onChange={(e) => onChange(e.target.checked)} disabled={disabled} className="h-5 w-5 accent-emerald-600" />
         <span className="text-sm text-gray-800 dark:text-gray-200">{checked ? "On" : "Off"}</span>
       </label>
     </div>
   );
 }
 
-function RadioGroup({ label, value, onChange, options }) {
+function RadioGroup({ label, value, onChange, options, disabled }) {
   return (
     <div>
       <div className="block text-sm text-gray-700 dark:text-gray-200 mb-1">{label}</div>
-      <div className="flex flex-wrap gap-3">
+      <div className={`flex flex-wrap gap-3 ${disabled ? 'opacity-50' : ''}`}>
         {options.map((o) => (
-          <label key={o.value} className="inline-flex items-center gap-2">
-            <input type="radio" name={label} checked={value === o.value} onChange={() => onChange(o.value)} className="h-5 w-5 accent-emerald-600" />
+          <label key={o.value} className={`inline-flex items-center gap-2 ${disabled ? 'cursor-not-allowed' : ''}`}>
+            <input type="radio" name={label} checked={value === o.value} onChange={() => onChange(o.value)} disabled={disabled} className="h-5 w-5 accent-emerald-600" />
             <span className="text-sm text-gray-800 dark:text-gray-200">{o.label}</span>
           </label>
         ))}
@@ -289,14 +290,14 @@ function RadioGroup({ label, value, onChange, options }) {
   );
 }
 
-function Number({ label, value, onChange, min, max, step = "1" }) {
+function Number({ label, value, onChange, min, max, step = "1", disabled }) {
   return (
     <div>
       <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">{label}</label>
       <input
         type="number" value={value ?? ""} onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
-        min={min} max={max} step={step}
-        className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2"
+        min={min} max={max} step={step} disabled={disabled}
+        className={`w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       />
     </div>
   );
