@@ -1,0 +1,178 @@
+// Seed default plants catalog
+const Plant = require('../models/Plant');
+
+const defaultPlants = [
+  {
+    slug: "basil",
+    common_name: "Basil",
+    scientific_name: "Ocimum basilicum",
+    min_sun_hours: 5,
+    max_sun_hours: 8,
+    indoor_ok: true,
+    watering_need: "med",
+    fertilization_freq_days: 21,
+    pot_size_min_liters: 3,
+    difficulty: "easy",
+    tags: ["herb", "culinary", "fragrant"],
+  },
+  {
+    slug: "mint",
+    common_name: "Mint",
+    scientific_name: "Mentha",
+    min_sun_hours: 3,
+    max_sun_hours: 6,
+    indoor_ok: true,
+    watering_need: "high",
+    fertilization_freq_days: 28,
+    pot_size_min_liters: 4,
+    difficulty: "easy",
+    tags: ["herb", "shade-tolerant"],
+  },
+  {
+    slug: "aloe-vera",
+    common_name: "Aloe Vera",
+    scientific_name: "Aloe barbadensis",
+    min_sun_hours: 4,
+    max_sun_hours: 8,
+    indoor_ok: true,
+    watering_need: "low",
+    fertilization_freq_days: 45,
+    pot_size_min_liters: 5,
+    difficulty: "easy",
+    tags: ["succulent", "medicinal"],
+  },
+  {
+    slug: "chilli",
+    common_name: "Chilli",
+    scientific_name: "Capsicum annuum",
+    min_sun_hours: 6,
+    max_sun_hours: 8,
+    indoor_ok: false,
+    watering_need: "med",
+    fertilization_freq_days: 30,
+    pot_size_min_liters: 7,
+    difficulty: "med",
+    tags: ["fruiting", "spicy"],
+  },
+  {
+    slug: "tomato",
+    common_name: "Tomato",
+    scientific_name: "Solanum lycopersicum",
+    min_sun_hours: 6,
+    max_sun_hours: 10,
+    indoor_ok: false,
+    watering_need: "high",
+    fertilization_freq_days: 14,
+    pot_size_min_liters: 10,
+    difficulty: "med",
+    tags: ["fruiting", "vegetable"],
+  },
+  {
+    slug: "coriander",
+    common_name: "Coriander",
+    scientific_name: "Coriandrum sativum",
+    min_sun_hours: 4,
+    max_sun_hours: 6,
+    indoor_ok: true,
+    watering_need: "med",
+    fertilization_freq_days: 21,
+    pot_size_min_liters: 2,
+    difficulty: "easy",
+    tags: ["herb", "culinary"],
+  },
+  {
+    slug: "spinach",
+    common_name: "Spinach",
+    scientific_name: "Spinacia oleracea",
+    min_sun_hours: 4,
+    max_sun_hours: 6,
+    indoor_ok: true,
+    watering_need: "high",
+    fertilization_freq_days: 21,
+    pot_size_min_liters: 3,
+    difficulty: "easy",
+    tags: ["vegetable", "leafy"],
+  },
+  {
+    slug: "rosemary",
+    common_name: "Rosemary",
+    scientific_name: "Rosmarinus officinalis",
+    min_sun_hours: 6,
+    max_sun_hours: 8,
+    indoor_ok: true,
+    watering_need: "low",
+    fertilization_freq_days: 30,
+    pot_size_min_liters: 5,
+    difficulty: "easy",
+    tags: ["herb", "aromatic"],
+  },
+  {
+    slug: "thyme",
+    common_name: "Thyme",
+    scientific_name: "Thymus vulgaris",
+    min_sun_hours: 5,
+    max_sun_hours: 7,
+    indoor_ok: true,
+    watering_need: "low",
+    fertilization_freq_days: 30,
+    pot_size_min_liters: 2,
+    difficulty: "easy",
+    tags: ["herb", "aromatic"],
+  },
+  {
+    slug: "oregano",
+    common_name: "Oregano",
+    scientific_name: "Origanum vulgare",
+    min_sun_hours: 6,
+    max_sun_hours: 8,
+    indoor_ok: true,
+    watering_need: "low",
+    fertilization_freq_days: 30,
+    pot_size_min_liters: 3,
+    difficulty: "easy",
+    tags: ["herb", "culinary"],
+  },
+  {
+    slug: "lettuce",
+    common_name: "Lettuce",
+    scientific_name: "Lactuca sativa",
+    min_sun_hours: 4,
+    max_sun_hours: 6,
+    indoor_ok: true,
+    watering_need: "high",
+    fertilization_freq_days: 21,
+    pot_size_min_liters: 2,
+    difficulty: "easy",
+    tags: ["vegetable", "leafy"],
+  },
+  {
+    slug: "pepper",
+    common_name: "Bell Pepper",
+    scientific_name: "Capsicum annuum",
+    min_sun_hours: 6,
+    max_sun_hours: 8,
+    indoor_ok: false,
+    watering_need: "med",
+    fertilization_freq_days: 30,
+    pot_size_min_liters: 8,
+    difficulty: "med",
+    tags: ["fruiting", "vegetable"],
+  },
+];
+
+async function seedPlants() {
+  try {
+    const count = await Plant.countDocuments();
+    if (count === 0) {
+      await Plant.insertMany(defaultPlants);
+      console.log('✅ Seeded default plants catalog');
+    } else {
+      console.log('ℹ️  Plants catalog already exists, skipping seed');
+    }
+  } catch (error) {
+    console.error('❌ Error seeding plants:', error);
+  }
+}
+
+module.exports = { seedPlants, defaultPlants };
+
