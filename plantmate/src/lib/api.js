@@ -1,5 +1,6 @@
 import axios from "axios";
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:7777";
+
+const API_BASE = process.env.REACT_APP_API_BASE || "https://plantmate-2-1.onrender.com";
 
 // Debug: Log the API base URL (remove in production)
 console.log("API Base URL:", API_BASE);
@@ -17,16 +18,20 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  r => r,
+  (res) => res,
   (err) => {
     const s = err?.response?.status;
     const url = err?.config?.url || "";
-    // don't auto-redirect for auth endpoints
+
+    // only handle non-auth endpoints
     if (s === 401 && !url.startsWith("/auth")) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      if (window.location.pathname !== "/login") window.location.replace("/login");
+      if (window.location.pathname !== "/login") {
+        window.location.replace("/login");
+      }
     }
+
     return Promise.reject(err);
   }
 );
