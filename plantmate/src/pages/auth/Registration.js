@@ -1,8 +1,6 @@
 // src/pages/auth/Registration.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import loginImg from "../../assests/lbg.jpeg";
 import Logo from "../../assests/logo.jpeg";
 import api from "../../lib/api";
@@ -43,7 +41,7 @@ export default function Registration() {
       navigate("/login",{replace:true});
     }catch(err){
       const s = err?.response?.status;
-      if(!err?.response) triggerNotification("error","Cannot reach API at http://localhost:7777.");
+      if(!err?.response) triggerNotification("error","Cannot reach API server. Please check your connection.");
       else if(s===409) triggerNotification("error","Email already registered.");
       else triggerNotification("error", err?.response?.data?.message || "Server error.");
     }finally{ setSubmitting(false); }
@@ -98,7 +96,6 @@ export default function Registration() {
           </div>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }

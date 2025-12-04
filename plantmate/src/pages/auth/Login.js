@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import loginImg from "../../assests/lbg.jpeg";
 import Logo from "../../assests/logo.jpeg";
 import api from "../../lib/api";
@@ -122,7 +120,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 };
