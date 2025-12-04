@@ -22,6 +22,7 @@ exports.update = asyncHandler(async (req, res) => {
 });
 
 exports.remove = asyncHandler(async (req, res) => {
-  await Space.deleteOne({ _id: req.params.id, user_id: req.user.id });
+  const result = await Space.deleteOne({ _id: req.params.id, user_id: req.user.id });
+  if (result.deletedCount === 0) return res.status(404).json({ message: 'Not found' });
   res.json({ ok: true });
 });
