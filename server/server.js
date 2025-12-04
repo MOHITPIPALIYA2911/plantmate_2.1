@@ -19,11 +19,14 @@ const app = express();
 /** CORS FIX for Render + Frontend */
 app.use(cors({
   origin: [
-    'http://localhost:3000',
-    process.env.FRONTEND_URL
+    "http://localhost:3000",
+    "https://plantmate-2-1.vercel.app"
   ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+
   credentials: true,
 }));
+
 
 app.use(express.json());
 app.use(cookie());
