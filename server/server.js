@@ -16,21 +16,36 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
+/** CORS FIX for Render + Frontend */
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    process.env.FRONTEND_URL
+  ],
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 }));
+
 app.use(express.json());
 app.use(cookie());
 app.use(morgan('dev'));
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/plantmate');
+/** Check MONGO_URI exists */
+if (!process.env.MONGO_URI) {
+  console.error("❌ MONGO_URI missing in .env");
+  process.exit(1);
+}
 
-// Seed default plants on startup
+/** MongoDB Atlas Connection */
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log("✅ Connected to MongoDB Atlas"))
+  .catch((err) => console.error("❌ MongoDB Error:", err));
+
+/** Seed default plants */
 mongoose.connection.once('open', async () => {
-  console.log('✅ Connected to MongoDB');
   try {
     const { seedPlants } = require('./seed/plants.seed');
     await seedPlants();
@@ -39,29 +54,31 @@ mongoose.connection.once('open', async () => {
   }
 });
 
-// simple health
+// Health check
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
-/** Mount routes under BOTH legacy and /api prefixes to avoid 404s */
+/** Mount routes */
 app.use(['/auth', '/api/auth'], authRoutes);
 app.use(['/profiles', '/api/profiles'], profileRoutes);
 app.use(['/spaces', '/api/spaces'], spacesRoutes);
 app.use(['/plants', '/api/plants'], plantsRoutes);
-app.use(['/catalog', '/api/catalog'], plantsRoutes); // Also mount plants catalog under /catalog
+app.use(['/catalog', '/api/catalog'], plantsRoutes);
 app.use(['/user-plants', '/api/user-plants'], userPlantsRoutes);
 app.use(['/care-tasks', '/api/care-tasks'], careTasksRoutes);
 app.use(['/calendar', '/api/calendar'], calendarRoutes);
 app.use(['/dashboard', '/api/dashboard'], dashboardRoutes);
 
-// 404 fallback (helps you see the exact missing path)
+// 404
 app.use((req, res) => {
   res.status(404).json({ message: `No route for ${req.method} ${req.originalUrl}` });
 });
 
+// Error handler
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(err.status || 500).json({ message: err.message || 'Server error' });
 });
 
+/** IMPORTANT: Render assigns its own port */
 const port = process.env.PORT || 7777;
-app.listen(port, () => console.log('Server listening on ' + port));
+app.listen(port, () => console.log('🚀 Server running on port ' + port));
