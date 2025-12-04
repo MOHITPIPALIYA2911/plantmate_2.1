@@ -106,6 +106,41 @@ PlantMate is a comprehensive web application designed to help plant enthusiasts 
    ```
    Frontend will run on `http://localhost:3000`
 
+## 🧪 Testing
+
+The project includes a comprehensive test suite covering core functionality:
+
+### Running Tests
+```bash
+cd server
+npm test
+```
+
+### Test Coverage
+- Authentication flows (registration, login)
+- CRUD operations for spaces
+- Plant catalog retrieval
+- Plant suggestions based on space criteria
+- Error handling for invalid requests
+- Authorization protection for protected endpoints
+
+### Test Structure
+```
+server/tests/
+├── README.md              # Test documentation
+├── TEST_SUMMARY.md        # Test coverage summary
+├── setup.js               # Test environment setup
+├── fixtures/              # Test data
+│   └── testData.js        # Sample users, spaces, and plants
+├── integration/
+│   ├── auth/
+│   │   └── auth.test.js   # Authentication tests
+│   ├── plants/
+│   │   └── plants.test.js # Plant catalog and suggestions tests
+│   └── spaces/
+│       └── spaces.test.js # Space management tests
+```
+
 ## 🏗️ Project Structure
 
 ```
@@ -123,7 +158,8 @@ plantmate_2.1/
     ├── models/          # MongoDB models
     ├── routes/          # API routes
     ├── middleware/     # Auth middleware
-    └── seed/           # Database seeders
+    ├── seed/           # Database seeders
+    └── tests/          # Test suite
 ```
 
 ## 🛠️ Technology Stack
@@ -299,4 +335,3 @@ This is a collaborative project developed by the PlantMate team. For contributio
 **Made with 🌿 by the PlantMate Team**
 
 *Helping you grow, one plant at a time.*
-
