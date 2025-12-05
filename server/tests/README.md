@@ -12,7 +12,11 @@ tests/
 ├── integration/          # Integration tests for API endpoints
 │   ├── auth/             # Authentication tests
 │   ├── plants/           # Plant catalog and suggestions tests
-│   └── spaces/           # Spaces management tests
+│   ├── spaces/           # Spaces management tests
+│   ├── userPlants/       # User plants management tests
+│   ├── careTasks/        # Care tasks management tests
+│   ├── calendar/         # Calendar events tests
+│   └── dashboard/        # Dashboard statistics tests
 └── fixtures/             # Test data and mock objects
 ```
 
@@ -29,6 +33,8 @@ tests/
 - Space management endpoints
 - User plant management endpoints
 - Care task management endpoints
+- Calendar event management endpoints
+- Dashboard statistics endpoints
 
 ## Running Tests
 
@@ -43,6 +49,10 @@ Current test coverage includes:
 - CRUD operations for spaces
 - Plant catalog retrieval
 - Plant suggestions based on space criteria
+- User plant management
+- Care task management
+- Calendar event management
+- Dashboard statistics
 - Error handling for invalid requests
 - Authorization protection for protected endpoints
 

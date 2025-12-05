@@ -74,8 +74,41 @@ const testPlants = {
   }
 };
 
+const testUserPlants = {
+  validUserPlant: {
+    nickname: 'My Basil Plant',
+    plant_slug: 'basil'
+  },
+  validUserPlant2: {
+    nickname: 'My Tomato Plant',
+    plant_slug: 'tomato'
+  }
+};
+
+const testCareTasks = {
+  wateringTask: {
+    type: 'water',
+    note: 'Water the basil plant'
+  },
+  fertilizingTask: {
+    type: 'fertilize',
+    note: 'Fertilize the tomato plant',
+    recurrence_days: 30
+  }
+};
+
+const testCalendarEvents = {
+  validEvent: {
+    title: 'Plant Care Day',
+    note: 'Monthly plant care session'
+  }
+};
+
 module.exports = {
   testUsers,
   testSpaces,
-  testPlants
+  testPlants,
+  testUserPlants,
+  testCareTasks,
+  testCalendarEvents
 };
