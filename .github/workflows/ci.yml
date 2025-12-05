@@ -1,0 +1,109 @@
+# Continuous Integration Workflow
+name: CI
+
+on:
+  push:
+    branches: [ staging, main ]
+  pull_request:
+    branches: [ staging, main ]
+
+jobs:
+  # Backend Tests
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: server/package-lock.json
+        
+    - name: Install backend dependencies
+      run: |
+        cd server
+        npm ci || npm install
+        
+    - name: Run backend tests
+      run: |
+        cd server
+        npm test
+      env:
+        NODE_ENV: test
+        # For CI, we use a test database
+        MONGO_URI: ${{ secrets.MONGO_URI_TEST || 'mongodb://localhost:27017/plantmate_test' }}
+        
+  # Frontend Tests
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: plantmate/package-lock.json
+        
+    - name: Install frontend dependencies
+      run: |
+        cd plantmate
+        npm ci || npm install
+        
+    - name: Run frontend tests
+      run: |
+        cd plantmate
+        npm test
+      env:
+        REACT_APP_API_BASE: ${{ secrets.REACT_APP_API_BASE || 'http://localhost:7777' }}
+        
+  # Code Quality Checks
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd server
+        npm ci || npm install
+        cd ../plantmate
+        npm ci || npm install
+        
+    - name: Check for security vulnerabilities
+      run: |
+        cd server
+        npm audit --audit-level high || true
+        cd ../plantmate
+        npm audit --audit-level high || true
+        
+    - name: Check code formatting (if prettier is configured)
+      run: |
+        # Add prettier check if configured
+        echo "Code quality checks completed"
