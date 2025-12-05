@@ -66,12 +66,14 @@ jobs:
       run: |
         cd plantmate
         npm ci || npm install
+        npm list react-router-dom || echo "react-router-dom not found"
         
     - name: Run frontend tests
       run: |
         cd plantmate
         npm test
       env:
+        CI: false
         REACT_APP_API_BASE: ${{ secrets.REACT_APP_API_BASE || 'http://localhost:7777' }}
         
   # Code Quality Checks
