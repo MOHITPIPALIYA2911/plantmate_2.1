@@ -152,16 +152,16 @@ export default function Spaces() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* header */}
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold text-emerald-900 dark:text-slate-100">Your Spaces</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+        <h1 className="text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-slate-100">Your Spaces</h1>
         <button
           onClick={() => {
             setEditing(null);
             setOpen(true);
           }}
-          className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl"
+          className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm sm:text-base w-full sm:w-auto justify-center"
         >
           <FaPlus /> Add Space
         </button>
@@ -173,7 +173,7 @@ export default function Spaces() {
           No spaces yet. Click <b>Add Space</b> to begin.
         </div>
       ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {spaces.map((s) => (
             <li
               key={getId(s)}
@@ -288,23 +288,23 @@ function SpaceModal({ initial, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4 overflow-y-auto">
+      <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden my-4 sm:my-8">
+        <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold text-sm sm:text-base">
           {initial.id || initial._id ? "Edit Space" : "Add Space"}
         </div>
-        <form onSubmit={submit} className="p-5 space-y-4">
+        <form onSubmit={submit} className="p-4 sm:p-5 space-y-3 sm:space-y-4">
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Name</label>
             <input
-              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-300 text-sm sm:text-base"
               value={form.name}
               onChange={(e) => update("name", e.target.value)}
               placeholder="South Balcony"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Type</label>
               <select
@@ -333,7 +333,7 @@ function SpaceModal({ initial, onClose, onSave }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">
                 Sunlight (hours/day)
@@ -342,7 +342,7 @@ function SpaceModal({ initial, onClose, onSave }) {
                 type="number"
                 min={0}
                 max={12}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm sm:text-base"
                 value={form.sunlight_hours}
                 onChange={(e) => update("sunlight_hours", Number(e.target.value))}
               />
@@ -353,7 +353,7 @@ function SpaceModal({ initial, onClose, onSave }) {
                 type="number"
                 step="0.1"
                 min={0.1}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm sm:text-base"
                 value={form.area_sq_m}
                 onChange={(e) => update("area_sq_m", Number(e.target.value))}
               />
@@ -371,17 +371,17 @@ function SpaceModal({ initial, onClose, onSave }) {
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm sm:text-base"
             >
               Save
             </button>

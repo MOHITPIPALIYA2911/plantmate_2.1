@@ -50,48 +50,48 @@ export default function Registration() {
   return (
     <div className="relative bg-no-repeat bg-cover bg-center min-h-screen" style={{backgroundImage:`url(${loginImg})`}}>
       <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-400 opacity-75" />
-      <div className="flex flex-col sm:flex-row justify-center items-center min-h-screen">
-        <div className="flex justify-center self-center z-10">
-          <div className="p-12 bg-white mx-auto rounded-2xl w-96 shadow-lg">
-            <div className="mb-4 text-center">
-              <img src={Logo} alt="Logo" className="h-16 mb-3 rounded shadow-lg mx-auto" />
-              <p className="text-gray-500">Register yourself.</p>
+      <div className="flex flex-col sm:flex-row justify-center items-center min-h-screen px-4 py-8 sm:py-0">
+        <div className="flex justify-center self-center z-10 w-full max-w-md sm:max-w-none">
+          <div className="p-6 sm:p-8 md:p-12 bg-white mx-auto rounded-2xl w-full sm:w-96 shadow-lg">
+            <div className="mb-4 sm:mb-6 text-center">
+              <img src={Logo} alt="Logo" className="h-12 sm:h-16 mb-3 rounded shadow-lg mx-auto" />
+              <p className="text-sm sm:text-base text-gray-500">Register yourself.</p>
             </div>
-            <form className="space-y-4" onSubmit={onSubmit}>
-              <div className="grid grid-cols-2 gap-3">
+            <form className="space-y-4 sm:space-y-5" onSubmit={onSubmit}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm font-medium text-gray-700">First name</label>
                   <input name="firstName" value={form.firstName} onChange={onChange}
-                         className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
+                         className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">Last name</label>
                   <input name="lastName" value={form.lastName} onChange={onChange}
-                         className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
+                         className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
                 </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Email</label>
                 <input name="emailId" value={form.emailId} onChange={onChange} placeholder="you@email.com"
-                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
+                       className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Password</label>
                 <input type="password" name="password" value={form.password} onChange={onChange}
-                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
+                       className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Confirm Password</label>
                 <input type="password" name="confirm" value={form.confirm} onChange={onChange}
-                       className="w-full px-4 py-2 bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
+                       className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-green-50 border border-green-200 rounded-lg focus:outline-none focus:border-green-400 focus:bg-green-100 text-gray-900 placeholder:text-gray-500"/>
               </div>
               <button type="submit" disabled={submitting}
-                      className="w-full flex justify-center bg-green-500 hover:bg-green-600 text-white p-3 rounded-full font-semibold shadow-lg transition duration-300 disabled:opacity-60">
+                      className="w-full flex justify-center bg-green-500 hover:bg-green-600 text-white py-2.5 sm:p-3 rounded-full text-sm sm:text-base font-semibold shadow-lg transition duration-300 disabled:opacity-60">
                 {submitting ? "Signing up..." : "Sign Up"}
               </button>
             </form>
-            <p className="mt-3 text-center text-sm text-gray-600">
-              Already have an account? <span onClick={()=>navigate("/login")} className="text-green-600 cursor-pointer hover:underline">Sign in</span>
+            <p className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-600">
+              Already have an account? <span onClick={()=>navigate("/login")} className="text-green-600 cursor-pointer hover:underline font-medium">Sign in</span>
             </p>
           </div>
         </div>

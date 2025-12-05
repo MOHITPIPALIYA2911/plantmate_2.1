@@ -1,17 +1,26 @@
 // AppLayout.jsx (parent layout file)
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from './component/navbar/Navbar';
 import Sidebar from './component/sidebar/Sidebar';
 
 const AppLayout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <div>
-      
-      <Sidebar />
-      <div className="ml-44 mt-16 p-6 bg-gray-50 dark:bg-slate-900 min-h-screen">
-        <Navbar />
-        <div className='px-14'>
-        {children}
+      <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
+      <div className="md:ml-56 mt-16 p-4 sm:p-6 bg-gray-50 dark:bg-slate-900 min-h-screen">
+        <Navbar onToggleSidebar={toggleSidebar} />
+        <div className='px-2 sm:px-4 md:px-8 lg:px-14'>
+          {children}
         </div>
       </div>
     </div>

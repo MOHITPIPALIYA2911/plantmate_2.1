@@ -153,18 +153,18 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-semibold text-emerald-900 dark:text-emerald-100">Settings</h1>
-          <p className="text-emerald-800/80 dark:text-emerald-200/80">Simple preferences synced to your profile.</p>
+          <h1 className="text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-emerald-100">Settings</h1>
+          <p className="text-sm sm:text-base text-emerald-800/80 dark:text-emerald-200/80">Simple preferences synced to your profile.</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={onReset} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/20" disabled={saving}>
-            <FaUndo /> Reset
+          <button onClick={onReset} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm sm:text-base" disabled={saving}>
+            <FaUndo /> <span className="hidden sm:inline">Reset</span>
           </button>
-          <button onClick={onSave} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60" disabled={saving}>
-            <FaSave /> {saving ? "Saving..." : "Save"}
+          <button onClick={onSave} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 text-sm sm:text-base" disabled={saving}>
+            <FaSave /> {saving ? "Saving..." : <span className="hidden sm:inline">Save</span>}
           </button>
         </div>
       </div>

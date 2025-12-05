@@ -227,17 +227,17 @@ export default function Care() {
 
   /* --------------------------------- UI ---------------------------------- */
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-emerald-900 dark:text-slate-100">Care Tasks</h1>
-          <p className="text-emerald-800/80 dark:text-slate-300">Board view: Overdue, Today, Upcoming</p>
+          <h1 className="text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-slate-100">Care Tasks</h1>
+          <p className="text-sm sm:text-base text-emerald-800/80 dark:text-slate-300">Board view: Overdue, Today, Upcoming</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <select
             value={spaceFilter}
             onChange={(e) => setSpaceFilter(e.target.value)}
-            className="rounded-xl border border-emerald-200 dark:border-slate-600 px-3 py-2 text-emerald-900 dark:text-slate-100 bg-white dark:bg-slate-800"
+            className="rounded-xl border border-emerald-200 dark:border-slate-600 px-3 py-2 text-emerald-900 dark:text-slate-100 bg-white dark:bg-slate-800 text-sm sm:text-base"
           >
             <option value="all">All spaces</option>
             {spaces.map((s) => (
@@ -248,14 +248,14 @@ export default function Care() {
           </select>
           <button
             onClick={() => setOpenAdd(true)}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl"
+            className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm sm:text-base"
           >
             <FaPlus /> Add Task
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         <Column title="Overdue" count={overdue.length} header="from-rose-600 to-rose-500">
           {overdue.length === 0 ? (
             <Empty text="No overdue tasks. Nice work! 🌿" />
@@ -456,19 +456,19 @@ function AddModal({ onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4 overflow-y-auto">
+      <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden my-4 sm:my-8">
+        <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold text-sm sm:text-base">
           Add Care Task
         </div>
-        <form onSubmit={submit} className="p-5 space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={submit} className="p-4 sm:p-5 space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Type</label>
               <select
                 value={form.type}
                 onChange={(e) => update("type", e.target.value)}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base"
               >
                 <option value="water">Water</option>
                 <option value="fertilize">Fertilize</option>
@@ -480,18 +480,18 @@ function AddModal({ onClose, onSave }) {
                 type="datetime-local"
                 value={form.dueAt}
                 onChange={(e) => update("dueAt", e.target.value)}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Plant name</label>
               <input
                 value={form.plantName}
                 onChange={(e) => update("plantName", e.target.value)}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base"
                 placeholder="Basil"
               />
             </div>
@@ -500,13 +500,13 @@ function AddModal({ onClose, onSave }) {
               <input
                 value={form.spaceName}
                 onChange={(e) => update("spaceName", e.target.value)}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base"
                 placeholder="South Balcony"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Sunlight (h/day)</label>
               <input
@@ -515,7 +515,7 @@ function AddModal({ onClose, onSave }) {
                 max={12}
                 value={form.sunlightHours}
                 onChange={(e) => update("sunlightHours", e.target.value)}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base"
               />
             </div>
             <div>
@@ -523,13 +523,13 @@ function AddModal({ onClose, onSave }) {
               <input
                 value={form.note}
                 onChange={(e) => update("note", e.target.value)}
-                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2"
+                className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base"
                 placeholder="Keep soil moist..."
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
             <div className="flex items-center gap-2">
               <input
                 id="repeat"
@@ -549,21 +549,21 @@ function AddModal({ onClose, onSave }) {
                 value={form.recurrenceDays}
                 onChange={(e) => update("recurrenceDays", e.target.value)}
                 disabled={!form.repeat}
-                className="w-24 rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 disabled:bg-gray-100 dark:disabled:bg-slate-700/40"
+                className="w-full sm:w-24 rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 disabled:bg-gray-100 dark:disabled:bg-slate-700/40 text-sm sm:text-base"
               />
               <span className="text-sm text-gray-700 dark:text-gray-200">day(s)</span>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-sm sm:text-base"
             >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">
+            <button type="submit" className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm sm:text-base">
               Save
             </button>
           </div>

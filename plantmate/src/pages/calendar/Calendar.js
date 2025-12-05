@@ -45,6 +45,7 @@ export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [base, setBase] = useState(() => localStorage.getItem(LS_BASE));
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
 
   // load with discovery + graceful fallback
   const load = useCallback(async () => {
@@ -70,6 +71,12 @@ export default function Calendar() {
   }, [base]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const grid = useMemo(() => {
     const start = startOfGrid(month);
@@ -137,28 +144,28 @@ export default function Calendar() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <button onClick={prevMonth} className="p-2 rounded-full border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20" aria-label="Previous month">
             <FaChevronLeft />
           </button>
-          <div className="text-xl font-semibold text-emerald-900 dark:text-emerald-100">{monthLabel(month)}</div>
+          <div className="text-lg sm:text-xl font-semibold text-emerald-900 dark:text-emerald-100">{monthLabel(month)}</div>
           <button onClick={nextMonth} className="p-2 rounded-full border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20" aria-label="Next month">
             <FaChevronRight />
           </button>
-          <button onClick={goToday} className="ml-2 px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm">
+          <button onClick={goToday} className="px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-sm">
             Today
           </button>
         </div>
-        <button onClick={() => setOpenAdd(true)} className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl">
-          <FaPlus /> Add Event
+        <button onClick={() => setOpenAdd(true)} className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm sm:text-base">
+          <FaPlus /> <span className="hidden sm:inline">Add Event</span><span className="sm:hidden">Add</span>
         </button>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-sm overflow-hidden">
-        <div className="grid grid-cols-7 text-center bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 text-sm font-medium">
-          {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d)=> (<div key={d} className="px-2 py-2">{d}</div>))}
+        <div className="grid grid-cols-7 text-center bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm font-medium">
+          {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d)=> (<div key={d} className="px-1 sm:px-2 py-2">{d}</div>))}
         </div>
 
         <div className="grid grid-cols-7">
@@ -173,7 +180,7 @@ export default function Calendar() {
                 key={d.toISOString()}
                 onClick={() => setSelected(d)}
                 className={[
-                  "h-28 p-2 text-left border border-emerald-100 dark:border-emerald-900 relative",
+                  "h-20 sm:h-24 md:h-28 p-1 sm:p-2 text-left border border-emerald-100 dark:border-emerald-900 relative",
                   isOther ? "bg-slate-50 dark:bg-slate-900/30 text-slate-400"
                           : "bg-white dark:bg-slate-800 text-emerald-900 dark:text-emerald-100",
                   isSelected ? "ring-2 ring-emerald-400 z-10" : "",
@@ -181,26 +188,26 @@ export default function Calendar() {
               >
                 <div className="flex items-center justify-between">
                   <span className={[
-                      "text-sm px-2 py-0.5 rounded-full",
+                      "text-xs sm:text-sm px-1 sm:px-2 py-0.5 rounded-full",
                       isToday ? "bg-emerald-600 text-white"
                               : "text-emerald-900 dark:text-emerald-100 bg-emerald-50 dark:bg-emerald-900/20",
                     ].join(" ")}
                   >
                     {d.getDate()}
                   </span>
-                  {evs.length > 0 && <span className="text-xs text-emerald-700 dark:text-emerald-200">{evs.length} •</span>}
+                  {evs.length > 0 && <span className="text-[10px] sm:text-xs text-emerald-700 dark:text-emerald-200">{evs.length} •</span>}
                 </div>
-                <div className="mt-2 space-y-1">
-                  {evs.slice(0, 3).map((e) => (
+                <div className="mt-1 sm:mt-2 space-y-0.5 sm:space-y-1">
+                  {evs.slice(0, isMobile ? 1 : 3).map((e) => (
                     <div
                       key={getId(e)}
-                      className="truncate text-xs px-2 py-1 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 border border-emerald-100 dark:border-emerald-800"
+                      className="truncate text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 border border-emerald-100 dark:border-emerald-800"
                       title={e.title}
                     >
-                      {new Date(e.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • {e.title}
+                      <span className="hidden sm:inline">{new Date(e.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} • </span>{e.title}
                     </div>
                   ))}
-                  {evs.length > 3 && <div className="text-[11px] text-emerald-600 dark:text-emerald-300">+{evs.length - 3} more</div>}
+                  {evs.length > (isMobile ? 1 : 3) && <div className="text-[10px] text-emerald-600 dark:text-emerald-300">+{evs.length - (isMobile ? 1 : 3)}</div>}
                 </div>
               </button>
             );
@@ -208,38 +215,38 @@ export default function Calendar() {
         </div>
       </div>
 
-      <div className="mt-6 bg-white dark:bg-slate-800 rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 bg-emerald-600 text-white flex items-center gap-2">
+      <div className="mt-4 sm:mt-6 bg-white dark:bg-slate-800 rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-sm overflow-hidden">
+        <div className="px-3 sm:px-4 py-2 sm:py-3 bg-emerald-600 text-white flex items-center gap-2 text-sm sm:text-base">
           <FaCalendarAlt /> {fmtDay(selected)}
         </div>
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {dayEvents.length === 0 ? (
             <div className="rounded-xl border border-emerald-100 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-100 px-3 py-4 text-sm">
               No events on this day.
             </div>
           ) : (
-            <ul className="space-y-3">
+            <ul className="space-y-2 sm:space-y-3">
               {dayEvents.map((e) => (
-                <li key={getId(e)} className="flex items-start justify-between gap-3 rounded-xl border border-emerald-100 dark:border-emerald-800 p-3">
-                  <div className="space-y-1">
-                    <div className="font-semibold text-emerald-900 dark:text-emerald-100">{e.title}</div>
-                    <div className="text-sm text-emerald-800/90 dark:text-emerald-200/90 flex items-center gap-2">
+                <li key={getId(e)} className="flex items-start justify-between gap-2 sm:gap-3 rounded-xl border border-emerald-100 dark:border-emerald-800 p-2 sm:p-3">
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="font-semibold text-sm sm:text-base text-emerald-900 dark:text-emerald-100">{e.title}</div>
+                    <div className="text-xs sm:text-sm text-emerald-800/90 dark:text-emerald-200/90 flex items-center gap-2">
                       <FaClock />
                       {fmtHM(new Date(e.start))} {e.end ? `– ${fmtHM(new Date(e.end))}` : ""}
                     </div>
                     {e.spaceName ? (
-                      <div className="text-sm text-emerald-800/90 dark:text-emerald-200/90 flex items-center gap-2">
+                      <div className="text-xs sm:text-sm text-emerald-800/90 dark:text-emerald-200/90 flex items-center gap-2">
                         <FaMapMarkerAlt /> {e.spaceName}
                       </div>
                     ) : null}
-                    {e.note ? <div className="text-sm text-emerald-800/90 dark:text-emerald-200/90">{e.note}</div> : null}
+                    {e.note ? <div className="text-xs sm:text-sm text-emerald-800/90 dark:text-emerald-200/90">{e.note}</div> : null}
                   </div>
                   <button
                     onClick={() => removeEvent(getId(e))}
-                    className="p-2 rounded-lg border border-red-200 text-red-700 hover:bg-red-50"
+                    className="p-1.5 sm:p-2 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 flex-shrink-0"
                     aria-label="Delete"
                   >
-                    <FaTrash />
+                    <FaTrash className="text-sm sm:text-base" />
                   </button>
                 </li>
               ))}
@@ -285,45 +292,45 @@ function AddEventModal({ defaultDate, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold">Add Event</div>
-        <form onSubmit={submit} className="p-5 space-y-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4 overflow-y-auto">
+      <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden my-4 sm:my-8">
+        <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold text-sm sm:text-base">Add Event</div>
+        <form onSubmit={submit} className="p-4 sm:p-5 space-y-3 sm:space-y-4">
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Title</label>
-            <input value={form.title} onChange={(e) => update("title", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2" placeholder="Watering session" />
+            <input value={form.title} onChange={(e) => update("title", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base" placeholder="Watering session" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Date</label>
-              <input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2" />
+              <input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base" />
             </div>
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Time</label>
-              <input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2" />
+              <input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base" />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Duration (mins)</label>
-              <input type="number" min={0} step={15} value={form.durationMins} onChange={(e) => update("durationMins", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2" />
+              <input type="number" min={0} step={15} value={form.durationMins} onChange={(e) => update("durationMins", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base" />
             </div>
             <div>
               <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Space</label>
-              <input value={form.spaceName} onChange={(e) => update("spaceName", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2" placeholder="South Balcony" />
+              <input value={form.spaceName} onChange={(e) => update("spaceName", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base" placeholder="South Balcony" />
             </div>
           </div>
 
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Note</label>
-            <input value={form.note} onChange={(e) => update("note", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2" placeholder="Bring watering can" />
+            <input value={form.note} onChange={(e) => update("note", e.target.value)} className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm sm:text-base" placeholder="Bring watering can" />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700">Cancel</button>
-            <button type="submit" className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">Save</button>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+            <button type="button" onClick={onClose} className="w-full sm:w-auto px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-sm sm:text-base">Cancel</button>
+            <button type="submit" className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm sm:text-base">Save</button>
           </div>
         </form>
       </div>

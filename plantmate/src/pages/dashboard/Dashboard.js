@@ -90,17 +90,17 @@ const Dashboard = () => {
       p.map((t) => (t.id === id ? { ...t, dueAt: new Date(Date.now() + minutes * 60000).toISOString() } : t))
     );
 
-  if (loading) return <div className="p-6 text-xl">Loading Dashboard...</div>;
+  if (loading) return <div className="p-4 sm:p-6 text-lg sm:text-xl">Loading Dashboard...</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold text-emerald-900 dark:text-slate-100 mb-4">Today’s Watering</h1>
+    <div className="p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-slate-100 mb-4">Today's Watering</h1>
       {waterTasks.length === 0 ? (
         <div className="rounded-2xl border border-emerald-200 dark:border-slate-700 p-6 text-emerald-800 dark:text-slate-200 bg-white dark:bg-slate-800">
           All caught up! 🌿
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {waterTasks.map((t) => (
             <Card key={t.id} {...t} onDone={() => handleDone(t.id)} onSnooze={() => handleSnooze(t.id)} />
           ))}

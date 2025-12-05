@@ -510,23 +510,23 @@ export default function Plants() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-semibold text-emerald-900 dark:text-slate-100">My Plants</h1>
-        <div className="flex gap-3 flex-wrap">
-          <div className="relative">
+        <h1 className="text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-slate-100">My Plants</h1>
+        <div className="flex gap-2 sm:gap-3 flex-wrap w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-initial min-w-[200px] sm:min-w-0">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-700/80 dark:text-emerald-300/90" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by name…"
-              className="pl-9 pr-3 py-2 rounded-xl border border-emerald-200 dark:border-slate-600 bg-white dark:bg-slate-800 placeholder-emerald-700/70 dark:placeholder-slate-400 text-emerald-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-emerald-200 dark:border-slate-600 bg-white dark:bg-slate-800 placeholder-emerald-700/70 dark:placeholder-slate-400 text-emerald-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-300 text-sm sm:text-base"
             />
           </div>
           <button
             onClick={() => setOpenAdd(true)}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl"
+            className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm sm:text-base w-full sm:w-auto"
           >
             <FaPlus /> Add Plant
           </button>
@@ -541,7 +541,7 @@ export default function Plants() {
             : "No plants match your search."}
         </div>
       ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {filtered.map((up) => {
             const sp = spaceById.get(up.space_id);
             const cat = plantBySlug.get(up.plant_id || up.plant_slug) || {};
@@ -752,15 +752,15 @@ function AddPlantModal({ spaces, catalog, plantsBase, catalogBase, onClose, onAd
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4 overflow-y-auto">
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden my-8">
-        <div className="px-5 py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold">
+      <div className="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden my-4 sm:my-8">
+        <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold text-sm sm:text-base">
           Add Plant
         </div>
-        <form onSubmit={submit} className="p-5 space-y-4">
+        <form onSubmit={submit} className="p-4 sm:p-5 space-y-3 sm:space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Select Space</label>
             <select
-              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm sm:text-base"
               value={spaceId}
               onChange={(e) => setSpaceId(e.target.value)}
             >
@@ -774,14 +774,14 @@ function AddPlantModal({ spaces, catalog, plantsBase, catalogBase, onClose, onAd
 
           {/* AI Recommendations Section - Always Visible */}
           {recs.length > 0 && (
-            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border border-purple-200 dark:border-slate-700">
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-3 sm:p-4 border border-purple-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-3">
                 <FaRobot className="text-purple-600 dark:text-purple-400" />
-                <h3 className="text-sm font-semibold text-purple-900 dark:text-purple-200">
+                <h3 className="text-xs sm:text-sm font-semibold text-purple-900 dark:text-purple-200">
                   🤖 AI Recommendations for This Space
                 </h3>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-h-64 overflow-y-auto">
                 {recs.slice(0, 6).map((r) => {
                   const plant = r.plant || allCatalog.find((p) => p.slug === r.plant_slug);
                   return (
@@ -835,7 +835,7 @@ function AddPlantModal({ spaces, catalog, plantsBase, catalogBase, onClose, onAd
               Or Select Plant Manually
             </label>
             <select
-              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm sm:text-base"
               value={plantSlug}
               onChange={(e) => setPlantSlug(e.target.value)}
             >
@@ -851,24 +851,24 @@ function AddPlantModal({ spaces, catalog, plantsBase, catalogBase, onClose, onAd
           <div>
             <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Nickname (optional)</label>
             <input
-              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm sm:text-base"
               placeholder="My Basil"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm sm:text-base"
             >
               Add
             </button>
