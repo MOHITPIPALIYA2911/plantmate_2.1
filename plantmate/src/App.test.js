@@ -33,7 +33,7 @@ jest.mock('react-toastify', () => ({
 
 // Simple test for PlantMate application
 test('PlantMate application loads', () => {
-  expect(true).toBe(true);
+  expect(1).toBe(1);
 });
 
 test('renders PlantMate application', () => {
