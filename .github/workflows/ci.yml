@@ -3,9 +3,9 @@ name: CI
 
 on:
   push:
-    branches: [ development, staging, main ]
+    branches: [ staging, main ]
   pull_request:
-    branches: [ development, staging, main ]
+    branches: [ staging, main ]
 
 jobs:
   # Backend Tests
@@ -39,6 +39,8 @@ jobs:
         npm test
       env:
         NODE_ENV: test
+        # For CI, we use a test database
+        MONGO_URI: ${{ secrets.MONGO_URI_TEST || 'mongodb://localhost:27017/plantmate_test' }}
         
   # Frontend Tests
   frontend-tests:
@@ -69,6 +71,8 @@ jobs:
       run: |
         cd plantmate
         npm test
+      env:
+        REACT_APP_API_BASE: ${{ secrets.REACT_APP_API_BASE || 'http://localhost:7777' }}
         
   # Code Quality Checks
   code-quality:
