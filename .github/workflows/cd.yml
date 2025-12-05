@@ -1,0 +1,62 @@
+# Continuous Deployment Workflow
+name: CD
+
+on:
+  push:
+    branches: [ main, staging ]
+
+jobs:
+  # Deploy to Staging Environment
+  deploy-staging:
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Deploy Backend to Staging
+      run: |
+        echo "Deploying backend to staging environment"
+        # For Render.com deployment, you would typically use:
+        # curl -X POST https://api.render.com/v1/services/{service-id}/deploys -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+        
+    - name: Deploy Frontend to Staging
+      run: |
+        echo "Deploying frontend to staging environment"
+        # For Netlify/Vercel deployment, you would use their CLI or API
+        
+  # Deploy to Production Environment
+  deploy-production:
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        
+    - name: Deploy Backend to Production
+      run: |
+        echo "Deploying backend to production environment"
+        # Actual deployment commands would go here
+        # For Render.com:
+        # curl -X POST https://api.render.com/v1/services/{service-id}/deploys -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+      env:
+        PORT: ${{ secrets.PORT }}
+        FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+        MONGO_URI: ${{ secrets.MONGO_URI }}
+        
+    - name: Deploy Frontend to Production
+      run: |
+        echo "Deploying frontend to production environment"
+        # Actual deployment commands would go here
+        # For deployment platforms like Netlify or Vercel
+      env:
+        REACT_APP_API_BASE: ${{ secrets.REACT_APP_API_BASE }}
