@@ -1,6 +1,13 @@
+// Mock react-router-dom before importing App
+jest.mock('react-router-dom', () => ({
+  BrowserRouter: ({ children }) => <div>{children}</div>,
+  Routes: ({ children }) => <div>{children}</div>,
+  Route: ({ children }) => <div>{children}</div>,
+  useNavigate: () => jest.fn()
+}));
+
 import { render } from '@testing-library/react';
-// Import the inner App component instead of the RootApp with Router
-import App from './App'; 
+import App from './App';
 
 // Mock all the components that App imports to avoid test complexity
 jest.mock('./pages/auth/Login', () => () => <div>Login Component</div>);
@@ -13,6 +20,15 @@ jest.mock('./component/PrivateRoute', () => ({ children }) => <div>{children}</d
 // Mock the seedMock function
 jest.mock('./lib/mockApi/mockApi', () => ({
   seedMock: jest.fn()
+}));
+
+// Mock react-toastify
+jest.mock('react-toastify', () => ({
+  ToastContainer: () => <div>Toast Container</div>,
+  toast: {
+    success: jest.fn(),
+    error: jest.fn()
+  }
 }));
 
 test('renders PlantMate application', () => {
