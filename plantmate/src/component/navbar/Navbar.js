@@ -11,6 +11,7 @@ const Navbar = ({ onToggleSidebar }) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const menuRef = useRef(null);
+  const touchStartTime = useRef(0);
 
   let user = null;
   try {
@@ -40,17 +41,55 @@ const Navbar = ({ onToggleSidebar }) => {
   useEffect(() => setOpen(false), [location.pathname]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-16
+    <nav 
+      className="fixed top-0 left-0 right-0 h-16
       bg-emerald-600 dark:bg-slate-900
-      shadow-md z-50 flex items-center justify-between px-4 md:px-6">
-      <div className="flex items-center gap-3">
+      shadow-md z-50 flex items-center justify-between px-4 md:px-6"
+      style={{ 
+        position: 'fixed', 
+        zIndex: 100,
+        top: 0,
+        left: 0,
+        right: 0,
+        pointerEvents: 'auto'
+      }}
+    >
+      <div className="flex items-center gap-3" style={{ position: 'relative', zIndex: 60 }}>
         <button
           type="button"
-          onClick={() => onToggleSidebar?.()}
-          className="p-2 rounded-lg text-white/90 hover:bg-emerald-500 dark:hover:bg-slate-800 md:hidden"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (onToggleSidebar) {
+              onToggleSidebar();
+            }
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            touchStartTime.current = Date.now();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const timeSinceTouch = Date.now() - touchStartTime.current;
+            // Only trigger if it was a quick tap (not a long press)
+            if (timeSinceTouch < 500 && onToggleSidebar) {
+              onToggleSidebar();
+            }
+          }}
+          className="p-3 rounded-lg text-white/90 active:bg-emerald-500 dark:active:bg-slate-800 md:hidden z-[60] relative cursor-pointer select-none min-w-[44px] min-h-[44px] flex items-center justify-center"
+          style={{ 
+            touchAction: 'manipulation', 
+            WebkitTapHighlightColor: 'transparent',
+            WebkitTouchCallout: 'none',
+            userSelect: 'none',
+            pointerEvents: 'auto',
+            position: 'relative',
+            zIndex: 60
+          }}
           aria-label="Toggle sidebar"
         >
-          <FaBars />
+          <FaBars className="text-lg pointer-events-none" />
         </button>
         <button
           onClick={() => navigate("/dashboard")}

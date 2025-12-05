@@ -1,5 +1,5 @@
 // src/component/Sidebar.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   FaHome,
@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -35,12 +36,17 @@ const Sidebar = ({ isOpen, onClose }) => {
     }
   };
 
-  // Close sidebar on route change (mobile)
+  // Close sidebar on route change (mobile) - but only if it's actually open
+  const prevPathRef = useRef(location.pathname);
   useEffect(() => {
-    if (window.innerWidth < 768) {
+    // Only close if path actually changed AND sidebar is open
+    const pathChanged = prevPathRef.current !== location.pathname;
+    if (pathChanged && isOpen && window.innerWidth < 768) {
       onClose();
     }
-  }, [location.pathname, onClose]);
+    prevPathRef.current = location.pathname;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   // Prevent body scroll when sidebar is open on mobile
   useEffect(() => {
@@ -69,7 +75,20 @@ const Sidebar = ({ isOpen, onClose }) => {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={onClose}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          style={{ touchAction: 'manipulation', pointerEvents: isOpen ? 'auto' : 'none' }}
           aria-hidden="true"
         />
       )}
@@ -85,15 +104,35 @@ const Sidebar = ({ isOpen, onClose }) => {
           md:translate-x-0
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        style={{ 
+          touchAction: 'pan-y',
+          zIndex: isOpen ? 90 : 50,
+          pointerEvents: 'auto'
+        }}
       >
         {/* Mobile Close Button */}
         <div className="md:hidden flex justify-end p-4">
           <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-emerald-600/70 dark:hover:bg-slate-700 transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            className="p-2 rounded-lg hover:bg-emerald-600/70 dark:hover:bg-slate-700 transition-colors z-50 relative touch-manipulation cursor-pointer"
+            style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
             aria-label="Close sidebar"
           >
-            <FaTimes className="text-lg" />
+            <FaTimes className="text-lg pointer-events-none" />
           </button>
         </div>
 
