@@ -1,0 +1,40 @@
+{
+  "name": "plantmate-project",
+  "version": "1.0.0",
+  "description": "PlantMate - Your AI-powered plant care companion",
+  "main": "index.js",
+  "scripts": {
+    "install:frontend": "cd plantmate && npm install",
+    "install:backend": "cd server && npm install",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd plantmate && npm test",
+    "test:backend": "cd server && npm test",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "cd plantmate && npm start",
+    "start:backend": "cd server && npm start",
+    "build": "cd plantmate && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/plantmate.git"
+  },
+  "keywords": [
+    "plant",
+    "care",
+    "ai",
+    "recommendation"
+  ],
+  "author": "PlantMate Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/your-username/plantmate/issues"
+  },
+  "homepage": "https://github.com/your-username/plantmate#readme",
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  },
+  "workspaces": [
+    "plantmate",
+    "server"
+  ]
+}
