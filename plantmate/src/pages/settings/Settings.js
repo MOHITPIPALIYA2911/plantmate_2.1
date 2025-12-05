@@ -71,6 +71,20 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [themeInitialized, setThemeInitialized] = useState(false);
+  
+  // Name editing state
+  const fullName = user?.name || `${user?.first_Name || ""} ${user?.LastName || ""}`.trim();
+  const [nameParts, setNameParts] = useState(() => {
+    const name = fullName;
+    const firstSpaceIndex = name.indexOf(' ');
+    if (firstSpaceIndex === -1) {
+      return { firstName: name, lastName: '' };
+    }
+    return {
+      firstName: name.substring(0, firstSpaceIndex),
+      lastName: name.substring(firstSpaceIndex + 1)
+    };
+  });
 
   useEffect(() => {
     const fetcher = async () => {
@@ -122,10 +136,35 @@ export default function Settings() {
   const onSave = async () => {
     setSaving(true);
     try {
-      const res = await api.put("/profiles/me", { settings });
+      // Prepare name update if it changed
+      const newFullName = `${nameParts.firstName.trim()} ${nameParts.lastName.trim()}`.trim();
+      const nameChanged = newFullName !== fullName;
+      
+      // Update profile with settings and name if changed
+      const updatePayload = { settings };
+      if (nameChanged) {
+        updatePayload.name = newFullName;
+        // Update User model through profile endpoint
+        updatePayload.first_Name = nameParts.firstName.trim();
+        updatePayload.LastName = nameParts.lastName.trim();
+      }
+      
+      const res = await api.put("/profiles/me", updatePayload);
       const merged = res?.data?.settings ? { ...DEFAULTS, ...res.data.settings } : settings;
       setSettings(merged);
       writeLocal(user, merged);
+      
+      // Update local storage user if name changed
+      if (nameChanged) {
+        const updatedUser = { 
+          ...user, 
+          name: newFullName,
+          first_Name: nameParts.firstName.trim(),
+          LastName: nameParts.lastName.trim()
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+      
       notify("success", "Settings saved.");
     } catch (e) {
       notify("error", e?.response?.data?.message || "Failed to save settings.");
@@ -171,8 +210,14 @@ export default function Settings() {
 
       <Section title="Account">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ReadOnly label="Name" value={user?.name || `${user?.first_Name || ""} ${user?.LastName || ""}`.trim()} />
-          <ReadOnly label="Email" value={user?.emailId || user?.email || ""} />
+          <NameInput 
+            label="Name" 
+            firstName={nameParts.firstName}
+            lastName={nameParts.lastName}
+            onFirstNameChange={(val) => setNameParts(prev => ({ ...prev, firstName: val }))}
+            onLastNameChange={(val) => setNameParts(prev => ({ ...prev, lastName: val }))}
+          />
+          <ReadOnly label="Email" value={user?.emailId || user?.email || ""} disabled />
         </div>
       </Section>
 
@@ -238,13 +283,40 @@ function Section({ title, icon, children, disabled }) {
   );
 }
 
-function ReadOnly({ label, value }) {
+function ReadOnly({ label, value, disabled = false }) {
   return (
     <div>
       <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">{label}</label>
-      <div className="w-full rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 px-3 py-2 text-gray-700 dark:text-gray-200">
+      <div className={`w-full rounded-xl border border-gray-200 dark:border-slate-600 px-3 py-2 text-gray-700 dark:text-gray-200 ${
+        disabled ? 'bg-gray-100 dark:bg-slate-900 opacity-60 cursor-not-allowed' : 'bg-gray-50 dark:bg-slate-900'
+      }`}>
         {value || "—"}
       </div>
+    </div>
+  );
+}
+
+function NameInput({ label, firstName, lastName, onFirstNameChange, onLastNameChange }) {
+  return (
+    <div>
+      <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">{label}</label>
+      <div className="grid grid-cols-2 gap-2">
+        <input
+          type="text"
+          value={firstName}
+          onChange={(e) => onFirstNameChange(e.target.value)}
+          placeholder="First name"
+          className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+        />
+        <input
+          type="text"
+          value={lastName}
+          onChange={(e) => onLastNameChange(e.target.value)}
+          placeholder="Last name"
+          className="w-full rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+        />
+      </div>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Text before first space is first name, after is last name</p>
     </div>
   );
 }
