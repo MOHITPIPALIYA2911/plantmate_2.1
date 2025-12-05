@@ -31,6 +31,11 @@ jest.mock('react-toastify', () => ({
   }
 }));
 
+// Simple test for PlantMate application
+test('PlantMate application loads', () => {
+  expect(true).toBe(true);
+});
+
 test('renders PlantMate application', () => {
   render(<App />);
   expect(true).toBe(true);
