@@ -1,10 +1,22 @@
 // Mock react-router-dom before importing App
-jest.mock('react-router-dom', () => ({
-  BrowserRouter: ({ children }) => <div>{children}</div>,
-  Routes: ({ children }) => <div>{children}</div>,
-  Route: ({ children }) => <div>{children}</div>,
-  useNavigate: () => jest.fn()
-}));
+// jest.mock('react-router-dom', () => ({
+//   BrowserRouter: ({ children }) => <div>{children}</div>,
+//   Routes: ({ children }) => <div>{children}</div>,
+//   Route: ({ children }) => <div>{children}</div>,
+//   useNavigate: () => jest.fn()
+// }));
+
+// FIX: Use jest.requireActual as a fallback for a safer module mock
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual, // This safely provides other exports like Link, Outlet, etc.
+    BrowserRouter: ({ children }) => <div>{children}</div>,
+    Routes: ({ children }) => <div>{children}</div>,
+    Route: ({ children }) => <div>{children}</div>,
+    useNavigate: () => jest.fn()
+  };
+});
 
 import { render } from '@testing-library/react';
 import App from './App';
