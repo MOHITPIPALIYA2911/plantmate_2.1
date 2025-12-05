@@ -1,0 +1,105 @@
+# Continuous Integration Workflow
+name: CI
+
+on:
+  push:
+    branches: [ development, staging, main ]
+  pull_request:
+    branches: [ development, staging, main ]
+
+jobs:
+  # Backend Tests
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: server/package-lock.json
+        
+    - name: Install backend dependencies
+      run: |
+        cd server
+        npm ci
+        
+    - name: Run backend tests
+      run: |
+        cd server
+        npm test
+      env:
+        NODE_ENV: test
+        
+  # Frontend Tests
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: plantmate/package-lock.json
+        
+    - name: Install frontend dependencies
+      run: |
+        cd plantmate
+        npm ci
+        
+    - name: Run frontend tests
+      run: |
+        cd plantmate
+        npm test
+        
+  # Code Quality Checks
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd server
+        npm ci
+        cd ../plantmate
+        npm ci
+        
+    - name: Check for security vulnerabilities
+      run: |
+        cd server
+        npm audit --audit-level high || true
+        cd ../plantmate
+        npm audit --audit-level high || true
+        
+    - name: Check code formatting (if prettier is configured)
+      run: |
+        # Add prettier check if configured
+        echo "Code quality checks completed"

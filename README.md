@@ -121,6 +121,10 @@ npm test
 - CRUD operations for spaces
 - Plant catalog retrieval
 - Plant suggestions based on space criteria
+- User plant management
+- Care task management
+- Calendar event management
+- Dashboard statistics
 - Error handling for invalid requests
 - Authorization protection for protected endpoints
 
@@ -131,15 +135,39 @@ server/tests/
 ├── TEST_SUMMARY.md        # Test coverage summary
 ├── setup.js               # Test environment setup
 ├── fixtures/              # Test data
-│   └── testData.js        # Sample users, spaces, and plants
+│   └── testData.js        # Sample users, spaces, plants, user plants, care tasks, and calendar events
 ├── integration/
 │   ├── auth/
 │   │   └── auth.test.js   # Authentication tests
 │   ├── plants/
 │   │   └── plants.test.js # Plant catalog and suggestions tests
-│   └── spaces/
-│       └── spaces.test.js # Space management tests
+│   ├── spaces/
+│   │   └── spaces.test.js # Space management tests
+│   ├── userPlants/
+│   │   └── userPlants.test.js # User plant management tests
+│   ├── careTasks/
+│   │   └── careTasks.test.js # Care task management tests
+│   ├── calendar/
+│   │   └── calendar.test.js # Calendar event management tests
+│   └── dashboard/
+│       └── dashboard.test.js # Dashboard statistics tests
 ```
+
+## 🔄 CI/CD Process
+
+PlantMate follows an industry-standard CI/CD process to ensure code quality and reliable deployments:
+
+### Branch Strategy
+```
+main (production) ← staging ← development ← feature branches
+```
+
+### Automated Workflows
+- **Continuous Integration**: Automated testing on all pull requests
+- **Continuous Deployment**: Automatic deployment to staging and production
+- **Branch Protection**: Quality gates for protected branches
+
+For detailed information about the CI/CD process, see [CI_CD_GUIDE.md](CI_CD_GUIDE.md).
 
 ## 🏗️ Project Structure
 

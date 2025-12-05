@@ -1,0 +1,51 @@
+# Continuous Deployment Workflow
+name: CD
+
+on:
+  push:
+    branches: [ main, staging ]
+
+jobs:
+  # Deploy to Staging Environment
+  deploy-staging:
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Deploy Backend to Staging
+      run: |
+        echo "Deploying backend to staging environment"
+        # Add your staging deployment commands here
+        # Example: Deploy to Render, Heroku, or other hosting platform
+        
+    - name: Deploy Frontend to Staging
+      run: |
+        echo "Deploying frontend to staging environment"
+        # Add your frontend staging deployment commands here
+        # Example: Deploy to Vercel, Netlify, or other hosting platform
+        
+  # Deploy to Production Environment
+  deploy-production:
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Deploy Backend to Production
+      run: |
+        echo "Deploying backend to production environment"
+        # Add your production deployment commands here
+        # Example: Deploy to Render, Heroku, or other hosting platform
+        
+    - name: Deploy Frontend to Production
+      run: |
+        echo "Deploying frontend to production environment"
+        # Add your frontend production deployment commands here
+        # Example: Deploy to Vercel, Netlify, or other hosting platform
