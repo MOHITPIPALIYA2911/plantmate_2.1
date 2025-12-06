@@ -129,30 +129,11 @@ npm test
 - Authorization protection for protected endpoints
 
 ### Test Structure
-```
-server/tests/
-├── README.md              # Test documentation
-├── TEST_SUMMARY.md        # Test coverage summary
-├── setup.js               # Test environment setup
-├── fixtures/              # Test data
-│   └── testData.js        # Sample users, spaces, plants, user plants, care tasks, and calendar events
-├── integration/
-│   ├── auth/
-│   │   └── auth.test.js   # Authentication tests
-│   ├── plants/
-│   │   └── plants.test.js # Plant catalog and suggestions tests
-│   ├── spaces/
-│   │   └── spaces.test.js # Space management tests
-│   ├── userPlants/
-│   │   └── userPlants.test.js # User plant management tests
-│   ├── careTasks/
-│   │   └── careTasks.test.js # Care task management tests
-│   ├── calendar/
-│   │   └── calendar.test.js # Calendar event management tests
-│   └── dashboard/
-│       └── dashboard.test.js # Dashboard statistics tests
-```
 
+For detailed information about testing, see the following documentation files:
+- [Server Tests README](docs/testing/server_tests_readme.md)
+- [Test Summary](docs/testing/server_tests_summary.md)
+- [Unit Tests Guide](docs/testing/server_unit_tests_guide.md)
 ## 🔄 CI/CD Process
 
 PlantMate follows an industry-standard CI/CD process to ensure code quality and reliable deployments:
@@ -167,7 +148,19 @@ main (production) ← staging ← development ← feature branches
 - **Continuous Deployment**: Automatic deployment to staging and production
 - **Branch Protection**: Quality gates for protected branches
 
-For detailed information about the CI/CD process, see [CI_CD_GUIDE.md](CI_CD_GUIDE.md).
+For detailed information about the CI/CD process, see [CI/CD Guide](docs/development/CI_CD_GUIDE.md).
+## 📚 Documentation Structure
+
+All project documentation has been organized into the [docs/](docs) directory with the following structure:
+
+```
+docs/
+├── architecture/       # System architecture and design documents
+├── development/        # Development guidelines and CI/CD processes
+├── deployment/         # Deployment instructions and environment configuration
+├── testing/            # Testing strategies and test documentation
+└── user/               # User-facing documentation and guides
+```
 
 ## 🏗️ Project Structure
 
@@ -189,7 +182,6 @@ plantmate_2.1/
     ├── seed/           # Database seeders
     └── tests/          # Test suite
 ```
-
 ## 🛠️ Technology Stack
 
 ### Frontend
