@@ -18,7 +18,7 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
   const [plantSlug, setPlantSlug] = useState("");
   const [recs, setRecs] = useState([]);
 
-  // fetch AI recommendations (with rule-based fallback)
+  // 🔹 1) AI + fallback recommendations
   useEffect(() => {
     const run = async () => {
       if (!spaceId) {
@@ -29,35 +29,41 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
       const sp = (spaces || []).find((s) => (s.id || s._id) === spaceId);
       const allCatalog = catalog && catalog.length > 0 ? catalog : DEFAULT_PLANTS;
 
+      // --- Try AI backend first ---
       try {
         const { data } = await api.get("/api/plants/ai-suggestions", {
           params: { spaceId },
         });
 
-        const arr = Array.isArray(data) ? data : data?.suggestions;
-        if (Array.isArray(arr) && arr.length) {
-          setRecs(
-            arr.map((r) => ({
+        const raw = Array.isArray(data) ? data : data?.suggestions;
+
+        if (Array.isArray(raw) && raw.length) {
+          // ✅ Normalize + sort by score (DESC)
+          const normalized = raw
+            .map((r) => ({
               plant_slug: r.plant_slug,
               common_name: r.common_name,
               scientific_name: r.scientific_name || "",
-              score: r.score ?? 1,
+              score: typeof r.score === "number" ? r.score : 50,
               rationale: r.rationale || "Suggested by AI",
               plant: allCatalog.find((p) => p.slug === r.plant_slug),
+              tags: r.tags || [],
             }))
-          );
+            .filter((x) => !!x.plant_slug);
+
+          normalized.sort((a, b) => b.score - a.score);
+
+          // 🔥 Ab full sorted list store kar rahe hain (100 tak)
+          setRecs(normalized);
           return;
         }
-        console.log("AI RECS:", arr); // yahan recs ki jagah arr log karo
-
-
       } catch (e) {
-        // ignore and use fallback
-        console.warn("AI suggestions failed, using fallback:", e?.message);
+        console.warn("AI suggestions failed, using local fallback:", e?.message);
       }
 
-      // Local fallback
-      setRecs(localRecs(allCatalog, sp, 12));
+      // --- Fallback: frontend rule-based (localRecs) ---
+      const fallback = localRecs(allCatalog, sp, 30);
+      setRecs(fallback);
     };
 
     run();
@@ -65,7 +71,11 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
   }, [spaceId]);
 
   const allCatalog = catalog && catalog.length > 0 ? catalog : DEFAULT_PLANTS;
-  const options = allCatalog;
+
+  // 🔹 Map: slug -> score (dropdown ke liye)
+  const recScoreMap = new Map(
+    recs.map((r) => [r.plant_slug, typeof r.score === "number" ? r.score : 50])
+  );
 
   const submit = async (e) => {
     e.preventDefault();
@@ -135,7 +145,7 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
             </select>
           </div>
 
-          {/* AI Recommendations */}
+          {/* 🤖 AI Recommendations cards – top 6 only UI ke liye */}
           {recs.length > 0 && (
             <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-3 sm:p-4 border border-purple-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-3">
@@ -146,14 +156,16 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-h-64 overflow-y-auto">
                 {recs.slice(0, 6).map((r) => {
-                  const plant = r.plant || allCatalog.find((p) => p.slug === r.plant_slug);
+                  const plant =
+                    r.plant || allCatalog.find((p) => p.slug === r.plant_slug);
                   return (
                     <div
                       key={r.plant_slug}
-                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${r.plant_slug === plantSlug
+                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                        r.plant_slug === plantSlug
                           ? "border-purple-500 bg-purple-100 dark:bg-purple-900/30 shadow-md"
                           : "border-purple-200 dark:border-slate-600 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-sm bg-white dark:bg-slate-800"
-                        }`}
+                      }`}
                       onClick={() => setPlantSlug(r.plant_slug)}
                     >
                       <div className="flex items-start justify-between mb-1">
@@ -169,7 +181,9 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
                           <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
                             {Math.round(r.score)}
                           </div>
-                          <div className="text-xs text-purple-600/70 dark:text-purple-400/70">Match</div>
+                          <div className="text-xs text-purple-600/70 dark:text-purple-400/70">
+                            Match
+                          </div>
                         </div>
                       </div>
                       <p className="text-xs text-purple-800/90 dark:text-purple-200/90 mt-1 line-clamp-2">
@@ -189,10 +203,15 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
                   );
                 })}
               </div>
+              {recs.length > 6 && (
+                <p className="mt-2 text-[11px] text-purple-700/70 dark:text-purple-300/70">
+                  Showing top 6 of {recs.length} AI-scored plants.
+                </p>
+              )}
             </div>
           )}
 
-          {/* Manual select */}
+          {/* 🔽 Manual select – 2 sections */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
               Or Select Plant Manually
@@ -203,11 +222,31 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
               onChange={(e) => setPlantSlug(e.target.value)}
             >
               <option value="">-- Select a plant --</option>
-              {options.map((p) => (
-                <option key={p.slug} value={p.slug}>
-                  {p.common_name} ({p.scientific_name})
-                </option>
-              ))}
+
+              {/* SECTION 1: AI-scored plants */}
+              {recs.length > 0 && (
+                <optgroup label="AI Recommended (with score)">
+                  {allCatalog
+                    .filter((p) => recScoreMap.has(p.slug))
+                    .map((p) => (
+                      <option key={p.slug} value={p.slug}>
+                        {p.common_name} ({p.scientific_name}) —{" "}
+                        {Math.round(recScoreMap.get(p.slug))}/100
+                      </option>
+                    ))}
+                </optgroup>
+              )}
+
+              {/* SECTION 2: Remaining plants */}
+              <optgroup label="Other plants">
+                {allCatalog
+                  .filter((p) => !recScoreMap.has(p.slug))
+                  .map((p) => (
+                    <option key={p.slug} value={p.slug}>
+                      {p.common_name} ({p.scientific_name})
+                    </option>
+                  ))}
+              </optgroup>
             </select>
           </div>
 
