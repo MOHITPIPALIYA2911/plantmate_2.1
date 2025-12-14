@@ -1,122 +1,139 @@
 // server/services/aiClient.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+console.log("🔥 AI CLIENT INIT STARTED");
+
+// 1. Check API key
 const apiKey = process.env.GEMINI_API_KEY;
+console.log("🔍 GEMINI_API_KEY exists? =", !!apiKey);
+
 if (!apiKey) {
-    console.warn("⚠️ GEMINI_API_KEY missing – AI suggestions will fall back.");
+    console.warn("⚠️ GEMINI_API_KEY missing – AI suggestions will fallback.");
 }
 
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-1.5-flash" }) : null;
+let model = null;
+if (apiKey) {
+    try {
+        console.log("🚀 Initializing GoogleGenerativeAI...");
+        const genAI = new GoogleGenerativeAI(apiKey);
+        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        console.log("✅ Gemini model initialised successfully!");
+    } catch (err) {
+        console.error("❌ ERROR initializing Gemini model:", err);
+    }
+} else {
+    console.warn("⚠️ No API Key — model = null");
+}
 
 /**
- * Prompt builder – SPACE + PLANTS ko AI ko explain karta hai
+ * Clean ```json fences
+ */
+function cleanAIText(text) {
+    return text
+        .replace(/```json/gi, "")
+        .replace(/```/g, "")
+        .trim();
+}
+
+/**
+ * Build Prompt
  */
 function buildPrompt(space, plants) {
-    const spaceJson = {
-        id: String(space._id),
-        name: space.name,
-        type: space.type, // balcony / terrace / windowsill / indoor
-        sunlight_hours: space.sunlight_hours,
-        area_sq_m: space.area_sq_m,
-        direction: space.direction,
-        notes: space.notes || "",
-    };
-
-    const plantJson = plants.map((p) => ({
-        plant_slug: p.slug,
-        common_name: p.common_name,
-        scientific_name: p.scientific_name,
-        min_sun_hours: p.min_sun_hours,
-        max_sun_hours: p.max_sun_hours,
-        indoor_ok: p.indoor_ok,
-        watering_need: p.watering_need,
-        difficulty: p.difficulty,
-        pot_size_min_liters: p.pot_size_min_liters,
-        tags: p.tags,
-    }));
+    console.log("🧩 Building Gemini prompt...");
 
     return `
 You are a gardening expert and recommendation engine.
 
 Given a SPACE and a list of PLANTS, you must:
 
-- Score each plant from 0 to 100 for how suitable it is for that space.
-- Give a short rationale for the recommendation.
-- Focus on sunlight, space type (balcony/terrace/windowsill/indoor), care difficulty and general suitability.
+- Score each plant from 0 to 100
+- Provide a short rationale
+- Focus on sunlight, care difficulty, space type
 
 SPACE:
-${JSON.stringify(spaceJson, null, 2)}
+${JSON.stringify(space, null, 2)}
 
 PLANTS:
-${JSON.stringify(plantJson, null, 2)}
+${JSON.stringify(plants, null, 2)}
 
-Return JSON ONLY, in this exact shape:
-
+Return ONLY valid JSON array:
 [
   {
     "plant_slug": "basil",
     "score": 85,
-    "rationale": "Matches 6h sun, easy care, great for balcony.",
-    "tags": ["easy", "herb"]
+    "rationale": "Matches 6h sun...",
+    "tags": ["easy"]
   }
 ]
-
-Rules:
-- Reply ONLY valid JSON (no backticks, no extra text).
-- Include 5–10 best plants sorted by score (highest first).
-- score must be between 0 and 100.
-`;
+`.trim();
 }
 
 /**
- * Main function: space + plants -> [{ plant_slug, score, rationale, tags? }]
+ * Main AI suggestion function
  */
 async function getPlantSuggestions(space, plants) {
-    // Safety: agar API key ya model nahi, empty array de do
+    console.log("\n===============================");
+    console.log("🌱 getPlantSuggestions() CALLED");
+    console.log("===============================");
+    console.log("🔹 SPACE:", space);
+    console.log("🔹 PLANTS COUNT:", plants?.length);
+
     if (!model) {
-        console.warn("⚠️ Gemini model not initialised – returning empty list.");
+        console.log("❌ Gemini model is NULL → returning empty []");
         return [];
     }
 
     const prompt = buildPrompt(space, plants);
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    let text = response.text();
+    console.log("📤 Sending prompt to Gemini...");
+    console.log("📝 Prompt Preview (first 500 chars):");
+    console.log(prompt.substring(0, 500));
 
-    // kabhi-kabhi model ```json ... ``` deta hai, use strip kar dete hain
-    text = text.trim();
-    if (text.startsWith("```")) {
-        text = text.replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
+    let aiResponse;
+    try {
+        const result = await model.generateContent(prompt);
+        aiResponse = result.response.text();
+        console.log("📥 RAW Gemini Response:");
+        console.log(aiResponse);
+    } catch (err) {
+        console.error("❌ ERROR from Gemini API:", err.message);
+        return [];
     }
+
+    let text = cleanAIText(aiResponse);
+    console.log("🧹 Cleaned Gemini Response:");
+    console.log(text);
 
     let parsed;
     try {
         parsed = JSON.parse(text);
+        console.log("✅ JSON Parsed Successfully!");
     } catch (err) {
-        console.error("❌ Failed to parse Gemini JSON:", err.message);
-        console.error("Raw text:", text);
+        console.error("❌ JSON PARSE FAILED:", err);
+        console.log("🔥 RAW TEXT THAT FAILED PARSING:");
+        console.log(text);
         return [];
     }
 
-    const recs = Array.isArray(parsed)
+    const list = Array.isArray(parsed)
         ? parsed
-        : Array.isArray(parsed.recommendations)
-            ? parsed.recommendations
-            : [];
+        : parsed.recommendations || [];
 
-    if (!recs.length) return [];
+    console.log("📊 Number of items Gemini returned:", list.length);
 
-    // Normalise: sirf relevant fields rakho
-    return recs
+    // Normalize
+    const normalized = list
         .map((r) => ({
             plant_slug: r.plant_slug || r.slug || r.id,
-            score: Number.isFinite(r.score) ? r.score : 50,
+            score: Number(r.score) || 50,
             rationale: r.rationale || "Suggested by AI.",
-            tags: Array.isArray(r.tags) ? r.tags : [],
+            tags: r.tags || [],
         }))
         .filter((r) => r.plant_slug);
+
+    console.log("✨ Final Normalized AI Suggestions:", normalized);
+
+    return normalized;
 }
 
 module.exports = {

@@ -48,7 +48,8 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
           );
           return;
         }
-        console.log("AI RECS:", recs);
+        console.log("AI RECS:", arr); // yahan recs ki jagah arr log karo
+
 
       } catch (e) {
         // ignore and use fallback
@@ -149,11 +150,10 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
                   return (
                     <div
                       key={r.plant_slug}
-                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                        r.plant_slug === plantSlug
+                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${r.plant_slug === plantSlug
                           ? "border-purple-500 bg-purple-100 dark:bg-purple-900/30 shadow-md"
                           : "border-purple-200 dark:border-slate-600 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-sm bg-white dark:bg-slate-800"
-                      }`}
+                        }`}
                       onClick={() => setPlantSlug(r.plant_slug)}
                     >
                       <div className="flex items-start justify-between mb-1">
