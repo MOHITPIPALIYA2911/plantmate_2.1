@@ -9,6 +9,7 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import api from "../../lib/api";
+import plantAreaTypeImg from "../../assets/plantAreaType.png"
 
 /* ------------------------------ constants ------------------------------ */
 const DIRECTIONS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
@@ -44,7 +45,7 @@ async function discoverSpacesBase() {
 function saveLocal(list) {
   try {
     localStorage.setItem(LS_SPACES, JSON.stringify(list));
-  } catch {}
+  } catch { }
 }
 
 function loadLocal() {
@@ -179,11 +180,24 @@ export default function Spaces() {
               key={getId(s)}
               className="bg-white dark:bg-slate-800 rounded-2xl border border-emerald-200 dark:border-slate-700 shadow-sm overflow-hidden"
             >
-              <div className="h-20 bg-gradient-to-r from-emerald-600 to-emerald-500" />
+              {/* Header image instead of green bar */}
+              <div className="relative h-48 w-full overflow-hidden">
+                <img
+                  src={plantAreaTypeImg}
+                  alt="Plant area type"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                {/* optional dark overlay for text readability, chahe to hata sakta hai */}
+                <div className="absolute inset-0 bg-emerald-900/10 dark:bg-black/20" />
+              </div>
+
               <div className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="text-lg font-semibold text-emerald-900 dark:text-slate-100">{s.name}</div>
+                    <div className="text-lg font-semibold text-emerald-900 dark:text-slate-100">
+                      {s.name}
+                    </div>
                     <div className="text-xs uppercase tracking-wide text-emerald-700/80 dark:text-emerald-300/80">
                       {s.type}
                     </div>
@@ -222,6 +236,7 @@ export default function Spaces() {
             </li>
           ))}
         </ul>
+
       )}
 
       {open && (

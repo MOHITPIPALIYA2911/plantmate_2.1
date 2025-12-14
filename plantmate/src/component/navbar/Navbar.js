@@ -2,8 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaBell, FaSearch, FaCog, FaUser, FaSignOutAlt } from "react-icons/fa";
-import defaultProfile from "../../assests/noprofile.jpeg";
-import logo from "../../assests/logo.jpeg";
+import defaultProfile from "../../assets/noprofile.jpeg";
+import logo from "../../assets/logo.jpeg";
 
 const Navbar = ({ onToggleSidebar }) => {
   const navigate = useNavigate();

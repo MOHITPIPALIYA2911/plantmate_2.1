@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import loginImg from "../../assests/lbg.jpeg";
-import Logo from "../../assests/logo.jpeg";
+import loginImg from "../../assets/lbg.jpeg";
+import Logo from "../../assets/logo.jpeg";
 import api from "../../lib/api";
 import { triggerNotification } from "../../utils/toastUtil";
 
