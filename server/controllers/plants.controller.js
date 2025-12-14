@@ -5,6 +5,60 @@ const { getPlantSuggestions } = require("../services/aiClient");
 const { asyncHandler } = require('./_helpers');
 const { Types } = require('mongoose');
 
+function localRecsBackend(plants, space, limit = 12) {
+  const sun = Number(space.sunlight_hours || 0);
+  const spaceType = space.type || "";
+  const area = Number(space.area_sq_m || 0);
+
+  const scored = plants.map((p) => {
+    let score = 0;
+
+    // --- SUNLIGHT ---
+    const min = p.min_sun_hours ?? 0;
+    const max = p.max_sun_hours ?? 12;
+    if (sun >= min && sun <= max) {
+      const ideal = (min + max) / 2;
+      const diff = Math.abs(sun - ideal);
+      score += 40 * (1 - diff / 6);
+    } else {
+      score -= 10;
+    }
+
+    // --- SPACE TYPE ---
+    if (spaceType === "windowsill" && (p.indoor_ok || p.tags?.includes("herb"))) {
+      score += 20;
+    }
+    if ((spaceType === "balcony" || spaceType === "terrace") &&
+      (p.tags?.includes("vegetable") || p.tags?.includes("fruiting"))) {
+      score += 20;
+    }
+
+    // --- DIFFICULTY ---
+    if (p.difficulty === "easy") score += 10;
+
+    // --- POT SIZE ---
+    if (p.pot_size_min_liters && area > 0) {
+      const required = p.pot_size_min_liters * 0.1;
+      if (area >= required) score += 10;
+      else score -= 5;
+    }
+
+    return { plant: p, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ plant, score }) => ({
+      plant_slug: plant.slug,
+      common_name: plant.common_name,
+      scientific_name: plant.scientific_name,
+      score: Math.round(score),
+      rationale: `Matched via fallback scoring for ${space.sunlight_hours}h sunlight.`,
+      tags: ["fallback"],
+    }));
+}
+
 
 exports.listCatalog = asyncHandler(async (_req, res) => {
   res.json(await Plant.find({}).sort({ common_name: 1 }));
@@ -12,20 +66,20 @@ exports.listCatalog = asyncHandler(async (_req, res) => {
 
 exports.suggestions = asyncHandler(async (req, res) => {
   const { spaceId, limit = 12 } = req.query;
-  
+
   // Validate spaceId format
   if (!Types.ObjectId.isValid(spaceId)) {
     return res.json([]);
   }
-  
+
   const s = await Space.findOne({ _id: spaceId, user_id: req.user.id });
   if (!s) return res.json([]);
-  
+
   const q = {
     min_sun_hours: { $lte: s.sunlight_hours },
     max_sun_hours: { $gte: s.sunlight_hours },
   };
-  
+
   const list = await Plant.find(q).limit(Number(limit));
   const mapped = list.map((p) => ({
     plant_slug: p.slug,
@@ -34,7 +88,7 @@ exports.suggestions = asyncHandler(async (req, res) => {
     score: 100 - Math.abs(((p.min_sun_hours + p.max_sun_hours) / 2) - s.sunlight_hours) * 10,
     rationale: `Matches ~${s.sunlight_hours}h sunlight`,
   }));
-  
+
   res.json(mapped);
 });
 
@@ -99,4 +153,9 @@ exports.aiSuggestions = asyncHandler(async (req, res) => {
 
     return res.json({ suggestions: fallback });
   }
+
+  // 4) Fallback (smart)
+  const fallback = localRecsBackend(plants, space, 10);
+  return res.json({ suggestions: fallback });
+
 });
