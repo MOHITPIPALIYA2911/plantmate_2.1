@@ -108,29 +108,35 @@ async function runCareScheduler() {
         // Send email
         if (process.env.SMTP_EMAIL && process.env.SMTP_PASS) {
           try {
-            await sendEmail(
+            console.log(`📤 Attempting to send email to ${user.emailId} for task ${task._id}...`);
+            const emailResult = await sendEmail(
               user.emailId,
               `🌱 PlantMate: ${title}`,
               `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                   <h2 style="color: #059669;">${title}</h2>
-                  <p>${message}</p>
-                  <p style="color: #666; font-size: 14px;">Due: ${new Date(task.due_at).toLocaleString()}</p>
-                  <p style="margin-top: 20px; color: #666; font-size: 12px;">
-                    Visit <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/care">your care tasks</a> to mark this as done.
+                  <p style="font-size: 16px; line-height: 1.6;">${message}</p>
+                  <p style="color: #666; font-size: 14px; margin-top: 15px;">
+                    <strong>Due:</strong> ${new Date(task.due_at).toLocaleString()}
                   </p>
+                  <div style="margin-top: 20px; padding: 15px; background-color: #f0fdf4; border-radius: 8px;">
+                    <p style="color: #666; font-size: 14px; margin: 0;">
+                      Visit <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/care" style="color: #059669; text-decoration: none; font-weight: bold;">your care tasks</a> to mark this as done.
+                    </p>
+                  </div>
                 </div>
               `
             );
             notif.sent_email = true;
             await notif.save();
-            console.log(`📧 Email sent to ${user.emailId} for task ${task._id}`);
+            console.log(`✅ Email successfully sent to ${user.emailId} for task ${task._id} (Message ID: ${emailResult.messageId})`);
           } catch (emailErr) {
-            console.error(`❌ Email error for ${user.emailId}:`, emailErr.message);
+            console.error(`❌ Email error for ${user.emailId} (task ${task._id}):`, emailErr.message);
+            console.error(`   Full error:`, emailErr);
             // Don't fail the whole process if email fails
           }
         } else {
-          console.warn("SMTP_EMAIL or SMTP_PASS not configured, skipping email");
+          console.warn("⚠️ SMTP_EMAIL or SMTP_PASS not configured, skipping email");
         }
       } catch (taskErr) {
         console.error(`Error processing task ${task._id}:`, taskErr.message);

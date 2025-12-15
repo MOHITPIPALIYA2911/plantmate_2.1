@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendEmail } = require('../utils/email');
 
 exports.register = async (req, res, next) => {
   try {
@@ -31,6 +32,29 @@ exports.login = async (req, res, next) => {
     if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 
     const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET || 'dev', { expiresIn: '7d' });
+    
+    // Send welcome email (non-blocking)
+    if (process.env.SMTP_EMAIL && process.env.SMTP_PASS) {
+      sendEmail(
+        user.emailId,
+        '🌱 Welcome to PlantMate!',
+        `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #059669;">Welcome to PlantMate, ${user.first_Name}!</h2>
+            <p>Thank you for logging in. We're excited to help you take care of your plants.</p>
+            <p style="color: #666; font-size: 14px; margin-top: 20px;">
+              This email confirms that your email service is working correctly. You'll receive notifications for care tasks and reminders.
+            </p>
+            <p style="margin-top: 20px; color: #666; font-size: 12px;">
+              Happy planting! 🌿
+            </p>
+          </div>
+        `
+      ).catch(err => {
+        console.error(`Failed to send welcome email to ${user.emailId}:`, err.message);
+      });
+    }
+
     res.json({
       token,
       user: {

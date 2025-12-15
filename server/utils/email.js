@@ -22,24 +22,35 @@ if (process.env.SMTP_EMAIL && process.env.SMTP_PASS) {
 
 async function sendEmail(to, subject, html) {
   if (!transporter) {
-    throw new Error("Email transporter not configured. Please set SMTP_EMAIL and SMTP_PASS environment variables.");
+    const error = new Error("Email transporter not configured. Please set SMTP_EMAIL and SMTP_PASS environment variables.");
+    console.error("❌", error.message);
+    throw error;
   }
 
   if (!to) {
-    throw new Error("Recipient email address is required");
+    const error = new Error("Recipient email address is required");
+    console.error("❌", error.message);
+    throw error;
   }
 
   try {
+    console.log(`📤 Sending email to: ${to}, Subject: ${subject}`);
     const info = await transporter.sendMail({
       from: `PlantMate <${process.env.SMTP_EMAIL}>`,
       to,
       subject,
       html,
     });
-    console.log(`📧 Email sent to ${to}: ${info.messageId}`);
+    console.log(`✅ Email sent successfully to ${to} (Message ID: ${info.messageId})`);
     return info;
   } catch (error) {
     console.error(`❌ Failed to send email to ${to}:`, error.message);
+    if (error.response) {
+      console.error(`   Response:`, error.response);
+    }
+    if (error.responseCode) {
+      console.error(`   Response Code:`, error.responseCode);
+    }
     throw error;
   }
 }
