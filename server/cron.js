@@ -1,9 +1,8 @@
 const cron = require("node-cron");
 const { runCareScheduler } = require("./services/careScheduler");
 
-// Run every hour to check for due tasks
-cron.schedule("0 * * * *", async () => {
-  console.log("⏰ Hourly Care Scheduler Running...");
+// Run every minute to check for due tasks
+cron.schedule("* * * * *", async () => {
   await runCareScheduler();
 });
 

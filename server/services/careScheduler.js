@@ -17,8 +17,7 @@ function isDueToday(dueAt) {
 }
 
 async function runCareScheduler() {
-  console.log("🌱 Running care task scheduler...");
-
+  // Reduced logging since it runs every minute
   try {
     // Get start and end of today
     const todayStart = new Date();
@@ -32,7 +31,9 @@ async function runCareScheduler() {
       due_at: { $gte: todayStart, $lte: todayEnd }
     });
 
-    console.log(`Found ${tasks.length} tasks due today`);
+    if (tasks.length > 0) {
+      console.log(`🌱 Found ${tasks.length} tasks due today`);
+    }
 
     for (const task of tasks) {
       try {
