@@ -5,13 +5,60 @@ const Space = require('../models/Space');
 const Plant = require('../models/Plant');
 const { asyncHandler } = require('./_helpers');
 
+// Transform snake_case to camelCase for API responses
+function toCamelCase(doc, extraFields = {}) {
+  if (!doc) return doc;
+  const obj = doc.toObject ? doc.toObject() : doc;
+  return {
+    id: String(obj._id || obj.id),
+    type: obj.type,
+    plantName: extraFields.plantName || obj.plantName || obj.plant_name || '',
+    spaceName: extraFields.spaceName || obj.spaceName || obj.space_name || '',
+    sunlightHours: extraFields.sunlightHours !== undefined ? extraFields.sunlightHours : (obj.sunlightHours || obj.sunlight_hours || 0),
+    dueAt: obj.dueAt || (obj.due_at ? new Date(obj.due_at).toISOString() : (obj.createdAt ? new Date(obj.createdAt).toISOString() : new Date().toISOString())),
+    note: obj.note || '',
+    recurrenceDays: obj.recurrenceDays || obj.recurrence_days || 0,
+    status: obj.status || 'pending',
+    completedAt: obj.completedAt || (obj.completed_at ? new Date(obj.completed_at).toISOString() : null),
+    userPlantId: obj.userPlantId || (obj.user_plant_id ? String(obj.user_plant_id) : null),
+    createdAt: obj.createdAt ? new Date(obj.createdAt).toISOString() : null,
+    updatedAt: obj.updatedAt ? new Date(obj.updatedAt).toISOString() : null,
+  };
+}
+
+// Transform camelCase to snake_case for database
+function toSnakeCase(body) {
+  return {
+    type: body.type,
+    due_at: body.dueAt ? new Date(body.dueAt) : body.due_at,
+    note: body.note,
+    recurrence_days: body.recurrenceDays || body.recurrence_days || 0,
+    user_plant_id: body.userPlantId || body.user_plant_id,
+    plant_name: body.plantName || body.plant_name,
+    space_name: body.spaceName || body.space_name,
+    sunlight_hours: body.sunlightHours || body.sunlight_hours || 0,
+  };
+}
+
 exports.list = asyncHandler(async (req, res) => {
-  res.json(await CareTask.find({ user_id: req.user.id }).sort({ due_at: 1 }));
+  const tasks = await CareTask.find({ user_id: req.user.id }).sort({ due_at: 1 });
+  res.json(tasks.map(toCamelCase));
 });
 
 exports.create = asyncHandler(async (req, res) => {
-  const doc = await CareTask.create({ user_id: req.user.id, ...req.body });
-  res.status(201).json(doc);
+  const data = toSnakeCase(req.body);
+  // Ensure due_at is set if dueAt was provided
+  if (req.body.dueAt && !data.due_at) {
+    data.due_at = new Date(req.body.dueAt);
+  }
+  const doc = await CareTask.create({ user_id: req.user.id, ...data });
+  // Preserve frontend fields that aren't in the model schema
+  const extraFields = {
+    plantName: req.body.plantName,
+    spaceName: req.body.spaceName,
+    sunlightHours: req.body.sunlightHours,
+  };
+  res.status(201).json(toCamelCase(doc, extraFields));
 });
 
 exports.remove = asyncHandler(async (req, res) => {
@@ -45,7 +92,7 @@ exports.snooze = asyncHandler(async (req, res) => {
   t.due_at = new Date(Date.now() + mins * 60000);
   t.status = 'snoozed';
   await t.save();
-  res.json(t);
+  res.json(toCamelCase(t));
 });
 
 exports.reschedule = asyncHandler(async (req, res) => {
@@ -56,7 +103,7 @@ exports.reschedule = asyncHandler(async (req, res) => {
   t.due_at = new Date(dueAt);
   t.status = 'pending';
   await t.save();
-  res.json(t);
+  res.json(toCamelCase(t));
 });
 
 exports.bringToday = asyncHandler(async (req, res) => {
@@ -69,7 +116,7 @@ exports.bringToday = asyncHandler(async (req, res) => {
   t.due_at = nextHour;
   t.status = 'pending';
   await t.save();
-  res.json(t);
+  res.json(toCamelCase(t));
 });
 
 // used by Dashboard
