@@ -44,7 +44,14 @@ async function listNotifications(req, res) {
     .limit(limit)
     .lean();
 
-  res.json({ notifications: items });
+  // Ensure title field exists for frontend compatibility
+  const normalized = items.map(item => ({
+    ...item,
+    title: item.title || item.message || 'Notification',
+    type: item.task_type ? (item.task_type === 'water' || item.task_type === 'fertilize' ? 'care' : 'generic') : 'generic'
+  }));
+
+  res.json({ notifications: normalized });
 }
 
 /**

@@ -1,76 +1,145 @@
+const CareTask = require("../models/CareTask");
+const UserPlant = require("../models/UserPlant");
+const Plant = require("../models/Plant");
 const Space = require("../models/Space");
-const Plant = require("../models/Plant"); // if needed
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 const { sendEmail } = require("../utils/email");
 
 // Helper: check if due today
-function isDue(dueAt) {
+function isDueToday(dueAt) {
+  if (!dueAt) return false;
   const today = new Date();
-  const d = new Date(dueAt);
-  return (
-    d.getFullYear() === today.getFullYear() &&
-    d.getMonth() === today.getMonth() &&
-    d.getDate() === today.getDate()
-  );
+  today.setHours(0, 0, 0, 0);
+  const dueDate = new Date(dueAt);
+  dueDate.setHours(0, 0, 0, 0);
+  return dueDate.getTime() === today.getTime();
 }
 
 async function runCareScheduler() {
   console.log("🌱 Running care task scheduler...");
 
-  const spaces = await Space.find({});
-  const users = await User.find({}); // optional if mapping needed
+  try {
+    // Get start and end of today
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
 
-  for (const space of spaces) {
-    const user = users.find((u) => String(u._id) === String(space.user_id));
-    if (!user || !user.email) continue;
+    // Find all pending or snoozed tasks due today
+    const tasks = await CareTask.find({
+      status: { $in: ['pending', 'snoozed'] },
+      due_at: { $gte: todayStart, $lte: todayEnd }
+    });
 
-    const plants = space.plants || []; // from Care.js format
+    console.log(`Found ${tasks.length} tasks due today`);
 
-    for (const p of plants) {
-      if (!p.careTasks) continue;
+    for (const task of tasks) {
+      try {
+        // Get user
+        const user = await User.findById(task.user_id);
+        if (!user || !user.email) {
+          console.log(`Skipping task ${task._id}: user not found or no email`);
+          continue;
+        }
 
-      for (const task of p.careTasks) {
-        if (!task.dueAt) continue;
+        // Get plant info
+        let plantName = 'Your plant';
+        let spaceName = '';
+        
+        if (task.user_plant_id) {
+          const userPlant = await UserPlant.findById(task.user_plant_id);
+          if (userPlant) {
+            plantName = userPlant.nickname || 'Your plant';
+            
+            if (userPlant.plant_slug) {
+              const plant = await Plant.findOne({ slug: userPlant.plant_slug });
+              if (plant && !userPlant.nickname) {
+                plantName = plant.common_name || plantName;
+              }
+            }
+            
+            if (userPlant.space_id) {
+              const space = await Space.findById(userPlant.space_id);
+              if (space) {
+                spaceName = space.name || '';
+              }
+            }
+          }
+        } else {
+          // For tasks created without user_plant_id, try to extract from note or use generic
+          // Note: CareTask model doesn't store plantName/spaceName, so we use generic
+          plantName = 'Your plant';
+        }
 
-        if (!isDue(task.dueAt)) continue;
-
-        const msg = `${p.nickname || p.plantName}: ${task.type} is due today`;
-
-        // Avoid duplicate notification
-        const exists = await Notification.findOne({
+        // Check if notification already exists for this task
+        const existingNotif = await Notification.findOne({
           user_id: user._id,
-          plant_id: p.id,
-          task_type: task.type,
-          dueAt: task.dueAt,
+          task_id: String(task._id),
+          dueAt: task.due_at,
+          read: false
         });
 
-        if (exists) continue;
+        if (existingNotif) {
+          console.log(`Notification already exists for task ${task._id}`);
+          continue;
+        }
+
+        // Create notification message
+        const taskTypeLabel = task.type === 'water' ? 'Watering' : 'Fertilizing';
+        const title = `${taskTypeLabel} Reminder`;
+        const message = `${plantName}${spaceName ? ` (${spaceName})` : ''}: ${taskTypeLabel.toLowerCase()} is due today${task.note ? ` - ${task.note}` : ''}`;
 
         // Create notification
         const notif = await Notification.create({
           user_id: user._id,
-          plant_id: p.id,
-          plant_name: p.nickname || p.plantName,
+          plant_id: task.user_plant_id ? String(task.user_plant_id) : null,
+          plant_name: plantName,
           task_type: task.type,
-          message: msg,
-          dueAt: task.dueAt,
+          task_id: String(task._id),
+          message: message,
+          title: title,
+          dueAt: task.due_at,
         });
 
+        console.log(`Created notification ${notif._id} for user ${user.email}`);
+
         // Send email
-        try {
-          await sendEmail(
-            user.email,
-            `Plant Care Reminder: ${task.type}`,
-            `<p>${msg}</p>`
-          );
-          notif.sent_email = true;
-          await notif.save();
-        } catch (err) {
-          console.log("Email error:", err.message);
+        if (process.env.SMTP_EMAIL && process.env.SMTP_PASS) {
+          try {
+            await sendEmail(
+              user.email,
+              `🌱 PlantMate: ${title}`,
+              `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #059669;">${title}</h2>
+                  <p>${message}</p>
+                  <p style="color: #666; font-size: 14px;">Due: ${new Date(task.due_at).toLocaleString()}</p>
+                  <p style="margin-top: 20px; color: #666; font-size: 12px;">
+                    Visit <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/care">your care tasks</a> to mark this as done.
+                  </p>
+                </div>
+              `
+            );
+            notif.sent_email = true;
+            await notif.save();
+            console.log(`Email sent to ${user.email} for task ${task._id}`);
+          } catch (emailErr) {
+            console.error(`Email error for ${user.email}:`, emailErr.message);
+            // Don't fail the whole process if email fails
+          }
+        } else {
+          console.warn("SMTP_EMAIL or SMTP_PASS not configured, skipping email");
         }
+      } catch (taskErr) {
+        console.error(`Error processing task ${task._id}:`, taskErr.message);
+        // Continue with next task
       }
     }
+
+    console.log("✅ Care task scheduler completed");
+  } catch (err) {
+    console.error("❌ Error in care scheduler:", err);
   }
 }
 

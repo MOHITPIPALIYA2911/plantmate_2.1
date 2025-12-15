@@ -7,8 +7,10 @@ const NotificationSchema = new mongoose.Schema(
 
     plant_id: { type: String }, // Plant slug or ID
     plant_name: { type: String },
+    task_id: { type: String }, // CareTask ID
 
-    task_type: { type: String }, // "watering", "fertilizing", etc.
+    task_type: { type: String }, // "water", "fertilize", etc.
+    title: { type: String }, // Notification title for frontend
     message: { type: String, required: true },
 
     dueAt: { type: Date },

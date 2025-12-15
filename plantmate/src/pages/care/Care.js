@@ -16,14 +16,25 @@ import api from "../../lib/api";
 /* ----------------------------- local helpers ----------------------------- */
 const STORAGE_KEY = "pm_care_tasks_user";
 const LS_CARE_BASE = "pm_care_api_base";
-const CANDIDATE_ENDPOINTS = ["/api/care/tasks", "/api/care", "/api/tasks", "/care/tasks"];
+const CANDIDATE_ENDPOINTS = ["/api/care-tasks", "/api/care/tasks", "/api/care", "/api/tasks", "/care/tasks"];
 
-const fmtTime = (iso) =>
-  new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-const fmtDate = (iso) =>
-  new Date(iso).toLocaleDateString([], { day: "2-digit", month: "short" });
+const fmtTime = (iso) => {
+  if (!iso) return "N/A";
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return "N/A";
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+const fmtDate = (iso) => {
+  if (!iso) return "N/A";
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return "N/A";
+  return date.toLocaleDateString([], { day: "2-digit", month: "short" });
+};
 const relTime = (iso) => {
-  const d = new Date(iso).getTime() - Date.now();
+  if (!iso) return "N/A";
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return "N/A";
+  const d = date.getTime() - Date.now();
   const mins = Math.round(Math.abs(d) / 60000);
   if (mins < 60) return d < 0 ? `${mins}m ago` : `in ${mins}m`;
   const hrs = Math.round(mins / 60);
@@ -98,8 +109,15 @@ export default function Care() {
         if (useBase) {
           const { data } = await api.get(useBase);
           const arr = Array.isArray(data) ? data : data?.tasks || data?.rows || [];
-          setTasks(arr);
-          writeTasks(arr);
+          // Normalize tasks to ensure dueAt is valid
+          const normalized = arr.map((t) => {
+            if (!t.dueAt && t.due_at) {
+              t.dueAt = new Date(t.due_at).toISOString();
+            }
+            return t;
+          });
+          setTasks(normalized);
+          writeTasks(normalized);
           return;
         }
       } catch {
@@ -130,9 +148,21 @@ export default function Care() {
     const nowStart = startOfToday();
     const nowEnd = endOfToday();
     [...filteredTasks]
-      .sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt))
+      .sort((a, b) => {
+        const aDate = a.dueAt ? new Date(a.dueAt) : new Date(0);
+        const bDate = b.dueAt ? new Date(b.dueAt) : new Date(0);
+        return aDate - bDate;
+      })
       .forEach((x) => {
+        if (!x.dueAt) {
+          u.push(x); // Put tasks without due date in upcoming
+          return;
+        }
         const d = new Date(x.dueAt);
+        if (isNaN(d.getTime())) {
+          u.push(x); // Put invalid dates in upcoming
+          return;
+        }
         if (d < nowStart) o.push(x);
         else if (d > nowEnd) u.push(x);
         else t.push(x);
@@ -151,7 +181,7 @@ export default function Care() {
     const current = tasks.find((t) => getId(t) === id);
     if (!current) return;
 
-    if (Number(current.recurrenceDays) > 0) {
+    if (Number(current.recurrenceDays) > 0 && current.dueAt) {
       const newDue = nextRecurringDate(current.dueAt, Number(current.recurrenceDays));
       const nextTask = { ...current, id: uid(), dueAt: newDue.toISOString() };
       const next = tasks.filter((t) => getId(t) !== id);
@@ -201,7 +231,7 @@ export default function Care() {
 
     try {
       const useBase = base || localStorage.getItem(LS_CARE_BASE);
-      if (useBase) await api.post(`${useBase}/reschedule`, { id, dueAt: target.toISOString() });
+      if (useBase) await api.post(`${useBase}/${id}/reschedule`, { dueAt: target.toISOString() });
     } catch {}
   };
 
@@ -216,6 +246,12 @@ export default function Care() {
         const { data } = await api.post(useBase, task);
         const serverTask = (data && (data.task || data)) || null;
         if (serverTask) {
+          // Normalize dueAt if missing
+          if (!serverTask.dueAt && serverTask.due_at) {
+            serverTask.dueAt = new Date(serverTask.due_at).toISOString();
+          } else if (!serverTask.dueAt && task.dueAt) {
+            serverTask.dueAt = task.dueAt;
+          }
           // replace temp with server version (handles _id)
           persist([serverTask, ...next.filter((t) => getId(t) !== temp.id)]);
         }

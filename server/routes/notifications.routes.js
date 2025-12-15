@@ -29,6 +29,12 @@ router.post(
 
 // 🔔 Mark all as read
 router.post(
+  "/mark-all-read",
+  asyncHandler(notifications.markAllRead)
+);
+
+// 🔔 Alternative route for mark all as read (backward compatibility)
+router.post(
   "/read-all",
   asyncHandler(notifications.markAllRead)
 );
