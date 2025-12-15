@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
+const app = express();
+require("./cron");
+
 const cors = require('cors');
 const cookie = require('cookie-parser');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
-
 const authRoutes = require('./routes/auth.routes');
 const profileRoutes = require('./routes/profile.routes');
 const spacesRoutes = require('./routes/spaces.routes');
@@ -14,7 +16,8 @@ const careTasksRoutes = require('./routes/careTasks.routes');
 const calendarRoutes = require('./routes/calendar.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 
-const app = express();
+
+
 /** CORS FIX for Render + Frontend */
 app.use(cors({
   origin: [
@@ -77,6 +80,8 @@ app.use(['/user-plants', '/api/user-plants'], userPlantsRoutes);
 app.use(['/care-tasks', '/api/care-tasks'], careTasksRoutes);
 app.use(['/calendar', '/api/calendar'], calendarRoutes);
 app.use(['/dashboard', '/api/dashboard'], dashboardRoutes);
+app.use("/api/notifications", require("./routes/notifications.routes"));
+
 
 // 404
 app.use((req, res) => {

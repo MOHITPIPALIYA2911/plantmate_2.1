@@ -9,13 +9,29 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import api from "../../lib/api";
-import plantAreaTypeImg from "../../assets/plantAreaType.png"
+import plantAreaTypeImg from "../../assets/plantAreaType.png";
 
 /* ------------------------------ constants ------------------------------ */
 const DIRECTIONS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
 const DUMMY_SPACES = [
-  { id: "s1", name: "South Balcony", type: "balcony", direction: "S", sunlight_hours: 6, area_sq_m: 1.8, notes: "" },
-  { id: "s2", name: "Kitchen Window", type: "windowsill", direction: "E", sunlight_hours: 3, area_sq_m: 0.6, notes: "" },
+  {
+    id: "s1",
+    name: "South Balcony",
+    type: "balcony",
+    direction: "S",
+    sunlight_hours: 6,
+    area_sq_m: 1.8,
+    notes: "",
+  },
+  {
+    id: "s2",
+    name: "Kitchen Window",
+    type: "windowsill",
+    direction: "E",
+    sunlight_hours: 3,
+    area_sq_m: 0.6,
+    notes: "",
+  },
 ];
 
 const LS_SPACES = "spaces";
@@ -45,7 +61,7 @@ async function discoverSpacesBase() {
 function saveLocal(list) {
   try {
     localStorage.setItem(LS_SPACES, JSON.stringify(list));
-  } catch { }
+  } catch {}
 }
 
 function loadLocal() {
@@ -61,7 +77,9 @@ export default function Spaces() {
   const [spaces, setSpaces] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [base, setBase] = useState(() => localStorage.getItem(LS_SPACES_API_BASE));
+  const [base, setBase] = useState(() =>
+    localStorage.getItem(LS_SPACES_API_BASE)
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -74,7 +92,9 @@ export default function Spaces() {
         }
         if (useBase) {
           const { data } = await api.get(useBase);
-          const arr = Array.isArray(data) ? data : data?.rows || data?.spaces || [];
+          const arr = Array.isArray(data)
+            ? data
+            : data?.rows || data?.spaces || [];
           setSpaces(arr);
           saveLocal(arr);
           return;
@@ -100,7 +120,9 @@ export default function Spaces() {
     let next;
     let tempId = null;
     if (editing) {
-      next = spaces.map((s) => (getId(s) === getId(editing) ? { ...editing, ...payload } : s));
+      next = spaces.map((s) =>
+        getId(s) === getId(editing) ? { ...editing, ...payload } : s
+      );
     } else {
       tempId = String(Date.now());
       next = [{ id: tempId, ...payload }, ...spaces];
@@ -121,7 +143,9 @@ export default function Spaces() {
         const serverRow = data?.space || data;
         if (serverRow && getId(serverRow)) {
           // replace local item with server item (to capture _id)
-          const fixed = next.map((s) => (getId(s) === id ? serverRow : s));
+          const fixed = next.map((s) =>
+            getId(s) === id ? serverRow : s
+          );
           setSpaces(fixed);
           saveLocal(fixed);
         }
@@ -130,7 +154,10 @@ export default function Spaces() {
         const serverRow = data?.space || data;
         if (serverRow && getId(serverRow)) {
           // replace temp row with server row - filter out the temporary space by its ID
-          const fixed = [serverRow, ...next.filter((s) => getId(s) !== tempId)];
+          const fixed = [
+            serverRow,
+            ...next.filter((s) => getId(s) !== tempId),
+          ];
           setSpaces(fixed);
           saveLocal(fixed);
         }
@@ -156,7 +183,9 @@ export default function Spaces() {
     <div className="p-4 sm:p-6">
       {/* header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-        <h1 className="text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-slate-100">Your Spaces</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-slate-100">
+          Your Spaces
+        </h1>
         <button
           onClick={() => {
             setEditing(null);
@@ -188,7 +217,6 @@ export default function Spaces() {
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
-                {/* optional dark overlay for text readability, chahe to hata sakta hai */}
                 <div className="absolute inset-0 bg-emerald-900/10 dark:bg-black/20" />
               </div>
 
@@ -224,19 +252,32 @@ export default function Spaces() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 text-sm">
-                  <Pill icon={<FaMapMarkerAlt />} label="Area" value={`${s.area_sq_m} m²`} />
-                  <Pill icon={<FaCompass />} label="Dir" value={s.direction} />
-                  <Pill icon={<FaSun />} label="Sun" value={`${s.sunlight_hours}h`} />
+                  <Pill
+                    icon={<FaMapMarkerAlt />}
+                    label="Area"
+                    value={`${s.area_sq_m} m²`}
+                  />
+                  <Pill
+                    icon={<FaCompass />}
+                    label="Dir"
+                    value={s.direction}
+                  />
+                  <Pill
+                    icon={<FaSun />}
+                    label="Sun"
+                    value={`${s.sunlight_hours}h`}
+                  />
                 </div>
 
                 {s.notes ? (
-                  <p className="text-sm text-emerald-800/80 dark:text-slate-300">{s.notes}</p>
+                  <p className="text-sm text-emerald-800/80 dark:text-slate-300">
+                    {s.notes}
+                  </p>
                 ) : null}
               </div>
             </li>
           ))}
         </ul>
-
       )}
 
       {open && (
@@ -249,6 +290,7 @@ export default function Spaces() {
               sunlight_hours: 4,
               area_sq_m: 1,
               notes: "",
+              location: { lat: "", lng: "" },
             }
           }
           onClose={() => {
@@ -267,28 +309,60 @@ function Pill({ icon, label, value }) {
   return (
     <div className="rounded-xl bg-emerald-50 dark:bg-slate-700/40 border border-emerald-100 dark:border-slate-600 p-2">
       <div className="flex items-center gap-2 text-emerald-800 dark:text-slate-200">
-        <span className="text-emerald-700 dark:text-emerald-300">{icon}</span>
+        <span className="text-emerald-700 dark:text-emerald-300">
+          {icon}
+        </span>
         <span className="text-xs uppercase tracking-wide">{label}</span>
       </div>
-      <div className="mt-0.5 font-medium text-emerald-900 dark:text-slate-100">{value}</div>
+      <div className="mt-0.5 font-medium text-emerald-900 dark:text-slate-100">
+        {value}
+      </div>
     </div>
   );
 }
 
 function SpaceModal({ initial, onClose, onSave }) {
-  const [form, setForm] = useState(initial);
-  useEffect(() => setForm(initial), [initial]); // ensure form updates when editing changes
+  const [form, setForm] = useState(() => ({
+    ...initial,
+    location: initial.location || { lat: "", lng: "" },
+  }));
 
-  const update = (k, v) => setForm((prev) => ({ ...prev, [k]: v }));
+  useEffect(() => {
+    setForm({
+      ...initial,
+      location: initial.location || { lat: "", lng: "" },
+    });
+  }, [initial]);
+
+  const update = (k, v) =>
+    setForm((prev) => ({
+      ...prev,
+      [k]: v,
+    }));
+
+  const updateLocation = (k, v) =>
+    setForm((prev) => ({
+      ...prev,
+      location: {
+        ...(prev.location || {}),
+        [k]: v,
+      },
+    }));
 
   const submit = (e) => {
     e.preventDefault();
     // minimal validation
     if (!form.name?.trim()) return alert("Name is required");
-    if (!DIRECTIONS.includes(form.direction)) return alert("Direction invalid");
+    if (!DIRECTIONS.includes(form.direction))
+      return alert("Direction invalid");
     if (form.sunlight_hours < 0 || form.sunlight_hours > 12)
       return alert("Sunlight must be 0–12");
     if (form.area_sq_m <= 0) return alert("Area must be > 0");
+
+    const hasLatLng =
+      form.location &&
+      form.location.lat !== "" &&
+      form.location.lng !== "";
 
     // normalize numeric fields
     const payload = {
@@ -298,6 +372,12 @@ function SpaceModal({ initial, onClose, onSave }) {
       sunlight_hours: Number(form.sunlight_hours),
       area_sq_m: Number(form.area_sq_m),
       notes: form.notes?.trim() || "",
+      ...(hasLatLng && {
+        location: {
+          lat: Number(form.location.lat),
+          lng: Number(form.location.lng),
+        },
+      }),
     };
     onSave(payload);
   };
@@ -308,9 +388,14 @@ function SpaceModal({ initial, onClose, onSave }) {
         <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-gray-200 dark:border-slate-700 bg-emerald-600 text-white font-semibold text-sm sm:text-base">
           {initial.id || initial._id ? "Edit Space" : "Add Space"}
         </div>
-        <form onSubmit={submit} className="p-4 sm:p-5 space-y-3 sm:space-y-4">
+        <form
+          onSubmit={submit}
+          className="p-4 sm:p-5 space-y-3 sm:space-y-4"
+        >
           <div>
-            <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Name</label>
+            <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">
+              Name
+            </label>
             <input
               className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-300 text-sm sm:text-base"
               value={form.name}
@@ -321,7 +406,9 @@ function SpaceModal({ initial, onClose, onSave }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Type</label>
+              <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">
+                Type
+              </label>
               <select
                 className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 value={form.type}
@@ -330,10 +417,13 @@ function SpaceModal({ initial, onClose, onSave }) {
                 <option value="balcony">Balcony</option>
                 <option value="windowsill">Windowsill</option>
                 <option value="terrace">Terrace</option>
+                <option value="indoor">Indoor</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Direction</label>
+              <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">
+                Direction
+              </label>
               <select
                 className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 value={form.direction}
@@ -359,24 +449,110 @@ function SpaceModal({ initial, onClose, onSave }) {
                 max={12}
                 className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm sm:text-base"
                 value={form.sunlight_hours}
-                onChange={(e) => update("sunlight_hours", Number(e.target.value))}
+                onChange={(e) =>
+                  update("sunlight_hours", Number(e.target.value))
+                }
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Area (m²)</label>
+              <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">
+                Area (m²)
+              </label>
               <input
                 type="number"
                 step="0.1"
                 min={0.1}
                 className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm sm:text-base"
                 value={form.area_sq_m}
-                onChange={(e) => update("area_sq_m", Number(e.target.value))}
+                onChange={(e) =>
+                  update("area_sq_m", Number(e.target.value))
+                }
               />
             </div>
           </div>
 
+          {/* 🌍 Location block */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm text-gray-700 dark:text-gray-200">
+                Location (optional)
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!navigator.geolocation) {
+                    return alert(
+                      "Geolocation not supported in this browser."
+                    );
+                  }
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      updateLocation("lat", pos.coords.latitude);
+                      updateLocation("lng", pos.coords.longitude);
+                    },
+                    (err) => {
+                      console.error(err);
+                      alert("Could not get your location.");
+                    }
+                  );
+                }}
+                className="text-xs px-2 py-1 rounded-lg border border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-200 dark:hover:bg-slate-700"
+              >
+                Use my location
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
+                  value={form.location?.lat ?? ""}
+                  onChange={(e) =>
+                    updateLocation("lat", e.target.value)
+                  }
+                  placeholder="e.g. 23.0225"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 dark:text-gray-300 mb-1">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
+                  value={form.location?.lng ?? ""}
+                  onChange={(e) =>
+                    updateLocation("lng", e.target.value)
+                  }
+                  placeholder="e.g. 72.5714"
+                />
+              </div>
+            </div>
+
+            {form.location?.lat && form.location?.lng && (
+              <div className="mt-2">
+                <div className="text-[11px] text-gray-500 dark:text-gray-400 mb-1">
+                  Approximate map preview
+                </div>
+                <iframe
+                  title="space-location-map"
+                  className="w-full h-40 rounded-xl border border-gray-300 dark:border-slate-600"
+                  src={`https://www.openstreetmap.org/export/embed.html?layer=mapnik&marker=${form.location.lat},${form.location.lng}`}
+                />
+              </div>
+            )}
+          </div>
+
           <div>
-            <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">Notes (optional)</label>
+            <label className="block text-sm text-gray-700 dark:text-gray-200 mb-1">
+              Notes (optional)
+            </label>
             <textarea
               className="w-full rounded-xl border border-gray-300 dark:border-slate-600 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               rows={3}

@@ -145,7 +145,7 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
             </select>
           </div>
 
-          {/* 🤖 AI Recommendations cards – top 6 only UI ke liye */}
+          {/* 🤖 AI Recommendations cards – top 10 only UI ke liye */}
           {recs.length > 0 && (
             <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-3 sm:p-4 border border-purple-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-3">
@@ -155,17 +155,16 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
                 </h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-h-64 overflow-y-auto">
-                {recs.slice(0, 6).map((r) => {
+                {recs.slice(0, 10).map((r) => {
                   const plant =
                     r.plant || allCatalog.find((p) => p.slug === r.plant_slug);
                   return (
                     <div
                       key={r.plant_slug}
-                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                        r.plant_slug === plantSlug
+                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${r.plant_slug === plantSlug
                           ? "border-purple-500 bg-purple-100 dark:bg-purple-900/30 shadow-md"
                           : "border-purple-200 dark:border-slate-600 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-sm bg-white dark:bg-slate-800"
-                      }`}
+                        }`}
                       onClick={() => setPlantSlug(r.plant_slug)}
                     >
                       <div className="flex items-start justify-between mb-1">
@@ -203,15 +202,15 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
                   );
                 })}
               </div>
-              {recs.length > 6 && (
+              {recs.length > 10 && (
                 <p className="mt-2 text-[11px] text-purple-700/70 dark:text-purple-300/70">
-                  Showing top 6 of {recs.length} AI-scored plants.
+                  Showing top 10 of {recs.length} AI-scored plants.
                 </p>
               )}
             </div>
           )}
 
-          {/* 🔽 Manual select – 2 sections */}
+          {/* 🔽 Manual select – bas AI wali list se */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
               Or Select Plant Manually
@@ -223,32 +222,26 @@ function AddPlantModal({ spaces, catalog, plantsBase, onClose, onAdded }) {
             >
               <option value="">-- Select a plant --</option>
 
-              {/* SECTION 1: AI-scored plants */}
-              {recs.length > 0 && (
+              {recs.length > 0 ? (
                 <optgroup label="AI Recommended (with score)">
-                  {allCatalog
-                    .filter((p) => recScoreMap.has(p.slug))
-                    .map((p) => (
-                      <option key={p.slug} value={p.slug}>
-                        {p.common_name} ({p.scientific_name}) —{" "}
-                        {Math.round(recScoreMap.get(p.slug))}/100
-                      </option>
-                    ))}
+                  {recs.map((r) => (
+                    <option key={r.plant_slug} value={r.plant_slug}>
+                      {r.common_name} ({r.scientific_name}) — {Math.round(r.score)}/100
+                    </option>
+                  ))}
                 </optgroup>
-              )}
-
-              {/* SECTION 2: Remaining plants */}
-              <optgroup label="Other plants">
-                {allCatalog
-                  .filter((p) => !recScoreMap.has(p.slug))
-                  .map((p) => (
+              ) : (
+                <optgroup label="Default plants">
+                  {DEFAULT_PLANTS.map((p) => (
                     <option key={p.slug} value={p.slug}>
                       {p.common_name} ({p.scientific_name})
                     </option>
                   ))}
-              </optgroup>
+                </optgroup>
+              )}
             </select>
           </div>
+
 
           {/* Nickname */}
           <div>
