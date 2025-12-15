@@ -39,8 +39,8 @@ async function runCareScheduler() {
       try {
         // Get user
         const user = await User.findById(task.user_id);
-        if (!user || !user.email) {
-          console.log(`Skipping task ${task._id}: user not found or no email`);
+        if (!user || !user.emailId) {
+          console.log(`Skipping task ${task._id}: user not found or no email (user_id: ${task.user_id})`);
           continue;
         }
 
@@ -109,7 +109,7 @@ async function runCareScheduler() {
         if (process.env.SMTP_EMAIL && process.env.SMTP_PASS) {
           try {
             await sendEmail(
-              user.email,
+              user.emailId,
               `🌱 PlantMate: ${title}`,
               `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -124,9 +124,9 @@ async function runCareScheduler() {
             );
             notif.sent_email = true;
             await notif.save();
-            console.log(`Email sent to ${user.email} for task ${task._id}`);
+            console.log(`📧 Email sent to ${user.emailId} for task ${task._id}`);
           } catch (emailErr) {
-            console.error(`Email error for ${user.email}:`, emailErr.message);
+            console.error(`❌ Email error for ${user.emailId}:`, emailErr.message);
             // Don't fail the whole process if email fails
           }
         } else {
