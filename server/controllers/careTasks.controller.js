@@ -51,14 +51,13 @@ exports.create = asyncHandler(async (req, res) => {
   if (req.body.dueAt && !data.due_at) {
     data.due_at = new Date(req.body.dueAt);
   }
+  // Ensure plant_name, space_name, and sunlight_hours are saved
+  if (req.body.plantName) data.plant_name = req.body.plantName;
+  if (req.body.spaceName) data.space_name = req.body.spaceName;
+  if (req.body.sunlightHours !== undefined) data.sunlight_hours = req.body.sunlightHours;
+  
   const doc = await CareTask.create({ user_id: req.user.id, ...data });
-  // Preserve frontend fields that aren't in the model schema
-  const extraFields = {
-    plantName: req.body.plantName,
-    spaceName: req.body.spaceName,
-    sunlightHours: req.body.sunlightHours,
-  };
-  res.status(201).json(toCamelCase(doc, extraFields));
+  res.status(201).json(toCamelCase(doc));
 });
 
 exports.remove = asyncHandler(async (req, res) => {

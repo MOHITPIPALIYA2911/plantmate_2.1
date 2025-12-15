@@ -9,7 +9,10 @@ const careTaskSchema = new Schema(
     status: { type: String, enum: ['pending', 'done', 'skipped', 'snoozed'], default: 'pending' },
     completed_at: Date,
     recurrence_days: { type: Number, default: 0 },
-    note: String
+    note: String,
+    plant_name: String, // Store plant name for display
+    space_name: String, // Store space name for display
+    sunlight_hours: { type: Number, default: 0 } // Store sunlight hours for display
   },
   { timestamps: true, versionKey: false }
 );

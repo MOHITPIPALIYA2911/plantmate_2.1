@@ -103,7 +103,7 @@ async function runCareScheduler() {
           dueAt: task.due_at,
         });
 
-        console.log(`Created notification ${notif._id} for user ${user.email}`);
+        console.log(`Created notification ${notif._id} for user ${user.emailId}`);
 
         // Send email
         if (process.env.SMTP_EMAIL && process.env.SMTP_PASS) {
