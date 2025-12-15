@@ -1,7 +1,15 @@
 // src/component/Navbar.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaBars, FaBell, FaSearch, FaCog, FaUser, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaBars,
+  FaBell,
+  FaSearch,
+  FaCog,
+  FaUser,
+  FaSignOutAlt,
+} from "react-icons/fa";
+import api from "../../lib/api.js";
 import defaultProfile from "../../assets/noprofile.jpeg";
 import logo from "../../assets/logo.jpeg";
 
@@ -10,6 +18,7 @@ const Navbar = ({ onToggleSidebar }) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0); // 🆕 unread
   const menuRef = useRef(null);
   const touchStartTime = useRef(0);
 
@@ -26,6 +35,30 @@ const Navbar = ({ onToggleSidebar }) => {
     navigate("/login");
   };
 
+  // 🆕 fetch unread count
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchUnread = async () => {
+      try {
+        const { data } = await api.get("/api/notifications/unread-count");
+        if (!isMounted) return;
+        const count = data?.count ?? data?.unread ?? 0;
+        setUnreadCount(count);
+      } catch {
+        // ignore errors, silent fail
+      }
+    };
+
+    fetchUnread();
+    const id = setInterval(fetchUnread, 60_000); // every 60s
+
+    return () => {
+      isMounted = false;
+      clearInterval(id);
+    };
+  }, []);
+
   useEffect(() => {
     const onDocClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
@@ -38,23 +71,27 @@ const Navbar = ({ onToggleSidebar }) => {
       document.removeEventListener("keydown", onEsc);
     };
   }, []);
+
   useEffect(() => setOpen(false), [location.pathname]);
 
   return (
-    <nav 
+    <nav
       className="fixed top-0 left-0 right-0 h-16
       bg-emerald-600 dark:bg-slate-900
       shadow-md z-50 flex items-center justify-between px-4 md:px-6"
-      style={{ 
-        position: 'fixed', 
+      style={{
+        position: "fixed",
         zIndex: 100,
         top: 0,
         left: 0,
         right: 0,
-        pointerEvents: 'auto'
+        pointerEvents: "auto",
       }}
     >
-      <div className="flex items-center gap-3" style={{ position: 'relative', zIndex: 60 }}>
+      <div
+        className="flex items-center gap-3"
+        style={{ position: "relative", zIndex: 60 }}
+      >
         <button
           type="button"
           onClick={(e) => {
@@ -72,20 +109,19 @@ const Navbar = ({ onToggleSidebar }) => {
             e.preventDefault();
             e.stopPropagation();
             const timeSinceTouch = Date.now() - touchStartTime.current;
-            // Only trigger if it was a quick tap (not a long press)
             if (timeSinceTouch < 500 && onToggleSidebar) {
               onToggleSidebar();
             }
           }}
           className="p-3 rounded-lg text-white/90 active:bg-emerald-500 dark:active:bg-slate-800 md:hidden z-[60] relative cursor-pointer select-none min-w-[44px] min-h-[44px] flex items-center justify-center"
-          style={{ 
-            touchAction: 'manipulation', 
-            WebkitTapHighlightColor: 'transparent',
-            WebkitTouchCallout: 'none',
-            userSelect: 'none',
-            pointerEvents: 'auto',
-            position: 'relative',
-            zIndex: 60
+          style={{
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+            WebkitTouchCallout: "none",
+            userSelect: "none",
+            pointerEvents: "auto",
+            position: "relative",
+            zIndex: 60,
           }}
           aria-label="Toggle sidebar"
         >
@@ -126,18 +162,23 @@ const Navbar = ({ onToggleSidebar }) => {
       </div>
 
       <div className="flex items-center gap-3" ref={menuRef}>
+        {/* 🛎 Notifications button (active) */}
         <button
           type="button"
-          className="relative p-2 rounded-xl text-white/50 opacity-50 cursor-not-allowed"
-          title="Notifications (Disabled)"
-          disabled
+          className="relative p-2 rounded-xl text-white/90 hover:bg-emerald-500/60"
+          title="Notifications"
+          onClick={() => navigate("/notifications")}
         >
           <FaBell />
-          <span className="absolute -top-1 -right-1 h-5 min-w-[1.1rem] rounded-full
+          {unreadCount > 0 && (
+            <span
+              className="absolute -top-1 -right-1 h-5 min-w-[1.1rem] rounded-full
             bg-white text-emerald-700 dark:bg-emerald-500 dark:text-white
-            text-xs px-1 flex items-center justify-center opacity-50">
-            2
-          </span>
+            text-xs px-1 flex items-center justify-center"
+            >
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
         </button>
 
         <button
@@ -185,7 +226,8 @@ const Navbar = ({ onToggleSidebar }) => {
               className="w-full flex items-center gap-2 px-2 py-2 rounded-lg
                 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-700"
             >
-              <FaCog className="text-emerald-600 dark:text-emerald-400" /> Settings
+              <FaCog className="text-emerald-600 dark:text-emerald-400" />{" "}
+              Settings
             </button>
             <button
               onClick={() => {
@@ -195,7 +237,8 @@ const Navbar = ({ onToggleSidebar }) => {
               className="w-full flex items-center gap-2 px-2 py-2 rounded-lg
                 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-700"
             >
-              <FaUser className="text-emerald-600 dark:text-emerald-400" /> Profile
+              <FaUser className="text-emerald-600 dark:text-emerald-400" />{" "}
+              Profile
             </button>
             <button
               onClick={handleLogout}
